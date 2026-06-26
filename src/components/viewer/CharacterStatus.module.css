@@ -39,8 +39,37 @@
     padding-left: 0.75em;
 }
 
-.stats progress {
-    max-width: 100%;
-    min-width: 8em;
+.statRow {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.statLabel {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    white-space: nowrap;
+}
+
+.statusBar {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    height: 0.9rem;
+    overflow: hidden;
     width: 100%;
+}
+
+.statusBarFill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+.statValue {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    white-space: nowrap;
 }

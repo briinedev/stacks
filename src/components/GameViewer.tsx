@@ -28,19 +28,63 @@ export default function GameViewer({ gameId }: { gameId: string }) {
     const [autoplay, setAutoplay] = useState(false);
 
     const [currentTurn, setCurrentTurn] = useState(0);
-    const [currentAction, setCurrentAction] = useState(0);
+    const [currentAction, setCurrentAction] = useState(3);
+
+    const shouldIncludeAction = (turnIndex: number, actionIndex: number) => {
+        if (turnIndex < currentTurn) return true;
+        if (turnIndex > currentTurn) return false;
+        return actionIndex <= currentAction;
+    };
+
+    useEffect(() => {
+        const clampActionIndex = (turnIndex: number, actionIndex: number) => {
+            const actionCount = turns[turnIndex]?.actions.length ?? 0;
+            return actionCount === 0 ? 0 : Math.min(actionIndex, actionCount - 1);
+        };
+
+        if (!turns.length) return;
+        setCurrentAction((prev) => clampActionIndex(currentTurn, prev));
+    }, [currentTurn, turns]);
+
+    const currentTurnActions = turns[currentTurn]?.actions.length ?? 0;
+    const canGoNext = turns.length > 0 && (currentTurn < turns.length - 1 || currentAction < currentTurnActions - 1);
+    const canGoPrev = currentTurn > 0 || currentAction > 0;
+
+    const goNext = () => {
+        if (currentAction < currentTurnActions - 1) {
+            setCurrentAction((prev) => prev + 1);
+        } else if (currentTurn < turns.length - 1) {
+            setCurrentTurn((prev) => prev + 1);
+            setCurrentAction(0);
+        }
+    };
+
+    const goPrev = () => {
+        if (currentAction > 0) {
+            setCurrentAction((prev) => prev - 1);
+        } else if (currentTurn > 0) {
+            const previousTurn = currentTurn - 1;
+            const previousActionCount = turns[previousTurn]?.actions.length ?? 0;
+            setCurrentTurn(previousTurn);
+            setCurrentAction(previousActionCount > 0 ? previousActionCount - 1 : 0);
+        }
+    };
 
     const northCharacters = (game?.north_characters || []).map(char => {
-        const charEmu =  new CharacterEmulator(char);
+        const charEmu = new CharacterEmulator(char);
 
-        for (const turn of turns) {
-            if (turns.indexOf(turn) > currentTurn) break;
+        for (let ti = 0; ti < turns.length; ti++) {
+            if (ti > currentTurn) break;
+            const turn = turns[ti];
+
             if (turn.active === 'north') charEmu.regainStamina();
 
-            for (const action of turn.actions) {
-                if (turn.actions.indexOf(action) > currentAction) break;
+            for (let ai = 0; ai < turn.actions.length; ai++) {
+                if (!shouldIncludeAction(ti, ai)) break;
+                const action = turn.actions[ai];
+
                 if (action.source === charEmu.id && action.type !== 'defend') charEmu.useStamina(action.type === 'spell' ? 5 : 1);
-                if (turn.active === 'south' && turns.indexOf(turn) !== 0) charEmu.regainStamina();
+                if (turn.active === 'south' && ti !== 0) charEmu.regainStamina();
                 for (const effect of action.effects || []) {
                     if (effect.target === charEmu.id) charEmu.hp -= effect.amount;
                 }
@@ -54,12 +98,16 @@ export default function GameViewer({ gameId }: { gameId: string }) {
         const charEmu = new CharacterEmulator(char);
         if (currentTurn === 0) charEmu.defended = true;
 
-        for (const turn of turns) {
-            if (turns.indexOf(turn) > currentTurn) break;
+        for (let ti = 0; ti < turns.length; ti++) {
+            if (ti > currentTurn) break;
+            const turn = turns[ti];
+
             if (turn.active === 'south') charEmu.regainStamina();
 
-            for (const action of turn.actions) {
-                if (turn.actions.indexOf(action) > currentAction) break;
+            for (let ai = 0; ai < turn.actions.length; ai++) {
+                if (!shouldIncludeAction(ti, ai)) break;
+                const action = turn.actions[ai];
+
                 if (action.source === charEmu.id && action.type !== 'defend') charEmu.useStamina(action.type === 'spell' ? 5 : 1);
                 if (turn.active === 'north') charEmu.regainStamina();
                 for (const effect of action.effects || []) {
@@ -78,7 +126,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 setGame(data.game);
                 setTurns(parseGameLog(data.game.log, data.game.south_characters));
                 setCurrentTurn(0);
-                setCurrentAction(0);
+                setCurrentAction(3);
                 setAutoplay(false);
             })
             .catch(console.error);
@@ -92,19 +140,29 @@ export default function GameViewer({ gameId }: { gameId: string }) {
     useEffect(() => {
         if (!turns.length) return;
 
-        const ugl = ['Game Start!']; // Updated Game Log
-        for (let i = 0; i <= Math.min(currentTurn, turns.length); i++) {
+        const ugl = ['Game Start!'];
+        for (let i = 0; i < turns.length; i++) {
+            if (i > currentTurn) break;
             const turn = turns[i];
             ugl.push(`Turn start: ${turn.active}`);
 
-            for (const action of turn.actions) {
-                if (i >= currentTurn && turn.actions.indexOf(action) > currentAction) break;
-                let log = `${action.id} - `;
+            for (let ai = 0; ai < turn.actions.length; ai++) {
+                if (i === currentTurn && ai > currentAction) break;
+                const action = turn.actions[ai];
+                const source = [...northCharacters, ...southCharacters].at(parseInt(atob(action.source)) - 1)!;
+                const actionType = action.type === 'attack' ? 'Attack' : action.type === 'spell' ? 'Casts' : 'Defends'; 
+                let log = `${source.name} ${actionType} ${['spell', 'attack'].includes(action.type) && '-'}`
 
-                for (const effect of action?.effects || []) {
-                    const target = [...northCharacters || [], ...southCharacters || []].at(parseInt(atob(effect.target)) - 1);
-                    if (target && effect.amount) log += `${target.name} ${effect.amount > 0 ? `-${effect.amount}` : `+${effect.amount}`} `;
+                if (action.effects) log += ' (';
+
+                for (const effect of action.effects || []) {
+                    const target = [...northCharacters, ...southCharacters].at(parseInt(atob(effect.target)) - 1);
+                    if (target && effect.amount !== 0) {
+                        log += `${target.name} ${effect.amount > 0 ? `-${effect.amount}` : `+${effect.amount}`} `;
+                    }
                 }
+
+                if (action.effects) log += ')';
 
                 ugl.push(log);
             }
@@ -113,27 +171,28 @@ export default function GameViewer({ gameId }: { gameId: string }) {
     }, [turns, currentTurn, currentAction, northCharacters, southCharacters]);
 
     useEffect(() => {
-        if (!autoplay) return;
+        if (!autoplay || !turns.length) return;
 
         const intvl = setInterval(() => {
-            if (currentAction > turns[currentTurn].actions.length - 1) {
-                setCurrentAction(currentAction + 1);
-            }
+            setCurrentAction((prevAction) => {
+                const actionCount = turns[currentTurn]?.actions.length ?? 0;
 
-            setCurrentTurn((c) => {
-                if (c < turns.length - 1) {
-                    return c + 1;
+                if (prevAction < actionCount - 1) {
+                    return prevAction + 1;
                 }
-                setCurrentAction(0);
+
+                if (currentTurn < turns.length - 1) {
+                    setCurrentTurn((prevTurn) => prevTurn + 1);
+                    return 0;
+                }
+
                 setAutoplay(false);
-                return c;
+                return prevAction;
             });
         }, ACTION_TIMER);
 
-        return () => {
-            clearInterval(intvl);
-        };
-    }, [autoplay, turns, currentTurn, currentAction]);
+        return () => clearInterval(intvl);
+    }, [autoplay, turns, currentTurn]);
 
     if (!game || !gameLog || !turns) return;
 
@@ -153,10 +212,10 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 { southCharacters.map(char => <CharacterStatus char={char} />) }
             </div>
 
-            <button disabled={currentTurn === turns.length - 1} onClick={() => setAutoplay(!autoplay)}>▶️</button>
-            <button disabled={currentTurn === turns.length - 1} onClick={() => setCurrentTurn(currentTurn + 1)}>➡️</button>
-            <button disabled={currentTurn === 0} onClick={() => setCurrentTurn(currentTurn - 1)}>⬅️</button>
-            <button onClick={() => setCurrentTurn(0)}>🔄</button>
+            <button disabled={!canGoNext} onClick={() => setAutoplay(!autoplay)}>▶️</button>
+            <button disabled={!canGoNext} onClick={goNext}>➡️</button>
+            <button disabled={!canGoPrev} onClick={goPrev}>⬅️</button>
+            <button onClick={() => { setCurrentTurn(0); setCurrentAction(3); }}>🔄</button>
         </div>
     );
 }

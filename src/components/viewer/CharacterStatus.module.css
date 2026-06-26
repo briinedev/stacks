@@ -1,0 +1,46 @@
+.Character {
+    display: flex;
+    border: 1px solid #FFF;
+    padding: 1em;
+}
+
+.avatar {
+    display: inline-block;
+    position: relative;
+}
+
+.avatar > img {
+    width: 4em;
+    height: 4em;
+    display: block;
+    border-radius: 50%;
+}
+
+.avatar > .element {
+    position: absolute;
+    top: 3em;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    border: 1px solid #FFF;
+    bottom: 0;
+}
+
+.avatar > .elementLeft {
+    left: 50%;
+    transform: translateX(-100%);
+}
+
+.avatar > .elementRight {
+    left: 50%;
+}
+
+.stats {
+    padding-left: 0.75em;
+}
+
+.stats progress {
+    max-width: 100%;
+    min-width: 8em;
+    width: 100%;
+}

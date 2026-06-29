@@ -117,11 +117,6 @@ export default function GameViewer({ gameId }: { gameId: string }) {
     }, [gameId]);
 
     useEffect(() => {
-        const logBox = document.getElementById(`${gameId}-log`);
-        if (logBox) logBox.scrollTop = logBox.scrollHeight;
-    }, [gameId, gameLog]);
-
-    useEffect(() => {
         if (!turns.length) return;
 
         const ugl = ['Game Start!'];
@@ -188,8 +183,22 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 { northCharacters.map(char => <CharacterStatus char={char} />) }
             </div>
 
-            <div class="flex flex-col-reverse h-48 overflow-y-scroll mt-4 scrollbar-none" id={`${gameId}-log`}>
-                {gameLog.toReversed().map(t => (<p>{t}</p>))}
+            <div class="flex">
+                <div>
+                    <div class="flex flex-col-reverse h-48 overflow-y-scroll mt-4 scrollbar-none">
+                        {gameLog.toReversed().map(t => (<p>{t}</p>))}
+                    </div>
+                </div>
+                <div class="p-4 ml-auto grid grid-cols-2 grid-rows-4">
+                    <div class="bg-red-500 p-1 m-1">25</div>
+                    <div class="bg-blue-500 p-1 m-1">25</div>
+                    <div class="bg-green-500 p-1 m-1">25</div>
+                    <div class="bg-yellow-500 p-1 m-1">25</div>
+                    <div class="bg-white text-black p-1 m-1">25</div>
+                    <div class="bg-black p-1 m-1">25</div>
+                    <div class="bg-purple-500 p-1 m-1">25</div>
+                    <div class="bg-orange-500 p-1 m-1">25</div>
+                </div>
             </div>
 
             <span class={turns[currentTurn].active === 'south' ? 'text-green-600 font-bold' : 'text-gray-600'}>WeeWoo1337</span>

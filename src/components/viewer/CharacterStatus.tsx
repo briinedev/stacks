@@ -26,9 +26,9 @@ function StatusBar({
         <div class={styles.statRow}>
             <div class={styles.statLabel}>{label}</div>
             <div class={styles.statusBar}>
+                <div class={styles.statValue}>{displayValue}</div>
                 <div class={styles.statusBarFill} style={{ width: `${barWidth}%`, backgroundColor: fillColor }} />
             </div>
-            <div class={styles.statValue}>{displayValue}</div>
         </div>
     );
 }
@@ -48,7 +48,7 @@ export default function Character({ char }: { char: CharacterEmulator }) {
             <div class={styles.stats}>
                 <strong>{char.name} {char.defended ? '🛡️' : ''}</strong>
                 <StatusBar
-                    label="Stamina"
+                    label="STA"
                     value={char.stamina}
                     max={char.maxStamina}
                     color="#facc15"

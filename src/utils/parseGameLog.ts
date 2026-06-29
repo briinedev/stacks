@@ -1,3 +1,5 @@
+import { Character } from './characterEmulator';
+
 export type Effect = {
     target: string,
     amount: number,
@@ -18,12 +20,12 @@ export type Turn = {
 };
 
 
-export default function parseGameLog(log: string, southCharacterIds: string[]) {
+export default function parseGameLog(log: string, southCharacterIds: Character[]) {
     const entries = log.split('|');
     const turns = [
         {
             active: 'south',
-            actions: southCharacterIds.map(id => ({ id: 'defend', source: id, type: 'defend' }))
+            actions: southCharacterIds.map(char => ({ id: 'defend', source: char.id, type: 'defend' }))
         }
     ] as Turn[];
 
@@ -41,8 +43,7 @@ export default function parseGameLog(log: string, southCharacterIds: string[]) {
         } else {
             const currentTurn = turns.at(-1)!;
 
-            // Attack
-            if (/^[1-6]:[asd]:[a-z\-_]+:[1-6,]+$/.test(entry)) {
+            if (/^[1-6]:[asd]:[a-z\-_]+:[1-6,]+$/.test(entry)) { // Attack or Spell
                 const [sourceNum, type, id, targetString] = entry.split(':');
                 const source = btoa(sourceNum);
                 const targets = targetString.split(',').map(n => btoa(n));
@@ -54,7 +55,7 @@ export default function parseGameLog(log: string, southCharacterIds: string[]) {
                     type: type === 'a' ? 'attack' : 'spell',
                     effects: [],
                 });
-            } else if (/^[1-6]:d$/.test(entry)) {
+            } else if (/^[1-6]:d$/.test(entry)) { // Defend
                 const [idNum] = entry.split(':');
 
                 currentTurn.actions.push({
@@ -62,12 +63,12 @@ export default function parseGameLog(log: string, southCharacterIds: string[]) {
                     source: btoa(idNum),
                     type: 'defend',
                 });
-            } else if (['nw!', 'sw!'].includes(entry)) {
+            } else if (['nw!', 'sw!'].includes(entry)) { // Win Condition
                 currentTurn.wins = true;
-            } else {
+            } else { // Effects
                 const lastAction = currentTurn.actions.at(-1)!;
 
-                if (/^[1-6]:d:[0-9]+/.test(entry)) {
+                if (/^[1-6]:d:[-0-9]+/.test(entry)) {
                     const [targetNum, , amount] = entry.split(':');
                     lastAction.effects!.push({
                         target: btoa(targetNum),

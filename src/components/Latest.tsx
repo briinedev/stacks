@@ -25,10 +25,11 @@ export default function Latest() {
     }, []);
 
     return (
-        <div class="flex">
+        <div>
             <div>
                 {latest.length && <GameViewer gameId={latest[0].id} />}
             </div>
+            {/*
             <div>
                 <table class="text-left border-separate border-spacing-2">
                     <thead>
@@ -43,8 +44,8 @@ export default function Latest() {
                         {
                             latest.map(game => (
                                 <tr>
-                                    <td>Somebody</td>
-                                    <td>Somebody Else</td>
+                                    <td>S</td>
+                                    <td>S</td>
                                     <td>N/A</td>
                                     <td>{game.length}</td>
                                 </tr>
@@ -52,7 +53,7 @@ export default function Latest() {
                         }
                     </tbody>
                 </table>
-            </div>
+            </div>*/}
         </div>
     );
 }

@@ -33,12 +33,12 @@ function StatusBar({
     );
 }
 
-export default function Character({ char }: { char: CharacterEmulator }) {
+export default function Character({ char, onClick }: { char: CharacterEmulator, onClick: () => void }) {
     const staminaDisplay = `${char.stamina} / ${char.maxStamina}`;
     const hpDisplay = `${char.hp} / ${CHAR_MAX_HP}`;
 
     return (
-        <div class={styles.Character}>
+        <div class={styles.Character} onClick={onClick}>
             <div class={styles.avatar}>
                 <img src={`https://placehold.co/50x50/${char.primary}/${char.secondary}?text=${char.name}`} title={char.name} />
                 <span title="BLUE" className={styles.element + ' ' + styles.elementLeft} style={{ backgroundColor: char.primary }} />

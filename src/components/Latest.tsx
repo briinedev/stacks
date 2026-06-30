@@ -29,6 +29,7 @@ export default function Latest() {
             <div>
                 {latest.length && <GameViewer gameId={latest[0].id} />}
             </div>
+            {/*
             <div>
                 <table class="text-left border-separate border-spacing-2">
                     <thead>
@@ -52,7 +53,7 @@ export default function Latest() {
                         }
                     </tbody>
                 </table>
-            </div>
+            </div>*/}
         </div>
     );
 }

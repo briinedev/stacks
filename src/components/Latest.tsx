@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'preact/hooks';
 
-import GameViewer from './GameViewer';
-
 type GameStub = {
     id: string,
     north: string,
+    north_agent_name: string,
+    north_agent_version: string,
     south: string,
+    south_agent_name: string,
+    south_agent_version: string,
     status: string,
     nwin: boolean,
     length: number,
@@ -14,47 +16,60 @@ type GameStub = {
 
 export default function Latest() {
     const [latest, setLatest] = useState([] as GameStub[]);
-    const [viewerId, setViewerId] = useState(undefined as string | undefined);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null as string | null);
 
     useEffect(() => {
+        setLoading(true);
+        setError(null);
+
         fetch(import.meta.env.VITE_API_HOST + '/latest')
             .then(res => res.json())
             .then(data => {
                 setLatest(data.latest || []);
-                setViewerId(data.latest[0].id);
             })
-            .catch(console.error);
+            .catch((err: unknown) => {
+                const message = err instanceof Error ? err.message : 'Failed to load recent games';
+                setError(message);
+            })
+            .finally(() => setLoading(false));
     }, []);
 
     return (
-        <div>
-            <div>
-                <table class="text-left border-separate border-spacing-2">
-                    <thead>
-                        <tr>
-                            <th>North</th>
-                            <th>South</th>
-                            <th>Winner</th>
-                            <th>Length</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            latest.map(game => (
-                                <tr onClick={() => setViewerId(game.id)} class="cursor-pointer">
-                                    <td>S</td>
-                                    <td>S</td>
-                                    <td>N/A</td>
-                                    <td>{game.length}</td>
+        <div class="space-y-4">
+            {loading && <div class="text-slate-300">Loading recent matches...</div>}
+            {error && <div class="text-red-300">{error}</div>}
+
+            {!loading && !error && latest.length > 0 && (
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[540px] text-left border-collapse border border-slate-700 bg-slate-900">
+                        <thead class="border-b border-slate-700">
+                            <tr>
+                                <th class="p-2">Replay</th>
+                                <th class="p-2">Winner</th>
+                                <th class="p-2">Loser</th>
+                                <th class="p-2">Length</th>
+                                <th class="p-2">Played</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {latest.map(game => (
+                                <tr key={game.id} class="cursor-pointer border-b border-slate-800 hover:bg-slate-800/70">
+                                    <td class="p-2"><a href={`/replay/${game.id}`}>View</a></td>
+                                    <td class="p-2">{game.nwin ? game.north_agent_name : game.south_agent_name}</td>
+                                    <td class="p-2">{game.nwin ? game.south_agent_name : game.north_agent_name}</td>
+                                    <td class="p-2">{game.length}</td>
+                                    <td class="p-2">{new Date(game.created_at).toLocaleDateString()}</td>
                                 </tr>
-                            ))
-                        }
-                    </tbody>
-                </table>
-            </div>*
-            <div>
-                {viewerId && <GameViewer gameId={viewerId} />}
-            </div>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {!loading && !error && latest.length === 0 && (
+                <div class="text-slate-300">No recent completed matches yet.</div>
+            )}
         </div>
     );
 }

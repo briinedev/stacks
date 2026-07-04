@@ -37,7 +37,7 @@ type CooldownEntry = CooldownAbility & {
 };
 
 const FAST_ACTION_TIMER = 160;
-const SPELL_ACTION_TIMER = 1250;
+const SPELL_ACTION_TIMER = 1000;
 const SKIP_TO_SPELL_TIMER = 50;
 
 export default function GameViewer({ gameId }: { gameId: string }) {
@@ -462,9 +462,9 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                         {gameLog.toReversed().map(t => (<p>{t}</p>))}
                     </div>
                 </div>
-                <div class="p-3 sm:p-4 font-bold text-center border-b lg:border-b-0 lg:border-r">
+                <div class="py-3 px-2 font-bold text-center border-b lg:border-b-0 lg:border-r">
                     <strong class="block mb-4">Stack</strong>
-                    <div class="h-auto sm:h-44 grid grid-cols-4 sm:grid-cols-2 grid-rows-2 sm:grid-rows-4 gap-2 sm:gap-0 place-items-center">
+                    <div class="h-auto sm:h-44 grid grid-cols-4 sm:grid-cols-2 grid-rows-2 sm:grid-rows-4 gap-2 sm:gap-2 place-items-center min-w-16">
                         <div class="bg-red-500 p-1 w-8 h-8 rounded-full">{stack.red}</div>
                         <div class="bg-blue-500 p-1 w-8 h-8 rounded-full">{stack.blue}</div>
                         <div class="bg-green-500 p-1 w-8 h-8 rounded-full">{stack.green}</div>

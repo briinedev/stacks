@@ -68,7 +68,7 @@ export default function Test() {
             </div>
 
             <h3 class="text-4xl text-center p-4">Featured Match</h3>
-            <GameViewer gameId="0a4041b476d2a66f1192de88b34668378cf6c0ef35622c7f1d26528a404d62ca" />
+            <GameViewer gameId="928bfe0cee668567a1bfe71e93d280670a2048c8da702854132f09354329f4cf" />
 
             <div class="mt-12">
                 <h3 class="text-4xl mb-4 block text-center">Global Leaderboard</h3>

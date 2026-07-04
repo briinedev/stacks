@@ -3,7 +3,7 @@ import parseGameLog, { Turn } from '../utils/parseGameLog';
 
 import CharacterStatus from './viewer/CharacterStatus';
 import CharacterEmulator, { Character, Attack, Spell, CHAR_MAX_HP } from '../utils/characterEmulator';
-import { IconArrowNarrowLeft, IconArrowNarrowRight, IconPlayerPause, IconPlayerPlay, IconRefresh } from '@tabler/icons-preact';
+import { IconArrowNarrowLeft, IconArrowNarrowRight, IconPlayerPause, IconPlayerPlay, IconPlayerSkipForward, IconRefresh } from '@tabler/icons-preact';
 
 type Game = {
     id: string,
@@ -26,13 +26,16 @@ type User = {
     avatar_url?: string,
 };
 
-const ACTION_TIMER = 250;
+const FAST_ACTION_TIMER = 160;
+const SPELL_ACTION_TIMER = 1500;
+const SKIP_TO_SPELL_TIMER = 50;
 
 export default function GameViewer({ gameId }: { gameId: string }) {
     const [game, setGame] = useState(undefined as Game | undefined);
     const [turns, setTurns] = useState([] as Turn[]);
     const [gameLog, setGameLog] = useState([] as string[]);
     const [autoplay, setAutoplay] = useState(false);
+    const [skipToSpell, setSkipToSpell] = useState(false);
 
     const [currentTurn, setCurrentTurn] = useState(0);
     const [currentAction, setCurrentAction] = useState(3);
@@ -174,16 +177,40 @@ export default function GameViewer({ gameId }: { gameId: string }) {
     const canGoNext = turns.length > 0 && (currentTurn < turns.length - 1 || currentAction < currentTurnActions - 1);
     const canGoPrev = currentTurn > 0 || currentAction > 0;
 
-    const goNext = () => {
-        if (currentAction < currentTurnActions - 1) {
-            setCurrentAction((prev) => prev + 1);
-        } else if (currentTurn < turns.length - 1) {
-            setCurrentTurn((prev) => prev + 1);
-            setCurrentAction(0);
+    const getNextStep = useCallback((turnIndex: number, actionIndex: number) => {
+        const actionCount = turns[turnIndex]?.actions.length ?? 0;
+
+        if (actionIndex < actionCount - 1) {
+            const nextActionIndex = actionIndex + 1;
+            return {
+                turnIndex,
+                actionIndex: nextActionIndex,
+                action: turns[turnIndex]?.actions[nextActionIndex],
+            };
         }
+
+        if (turnIndex < turns.length - 1) {
+            return {
+                turnIndex: turnIndex + 1,
+                actionIndex: 0,
+                action: turns[turnIndex + 1]?.actions[0],
+            };
+        }
+
+        return null;
+    }, [turns]);
+
+    const goNext = () => {
+        setSkipToSpell(false);
+        const nextStep = getNextStep(currentTurn, currentAction);
+        if (!nextStep) return;
+
+        setCurrentTurn(nextStep.turnIndex);
+        setCurrentAction(nextStep.actionIndex);
     };
 
     const goPrev = () => {
+        setSkipToSpell(false);
         if (currentAction > 0) {
             setCurrentAction((prev) => prev - 1);
         } else if (currentTurn > 0) {
@@ -209,6 +236,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 setCurrentTurn(0);
                 setCurrentAction(3);
                 setAutoplay(false);
+                setSkipToSpell(false);
             })
             .catch(console.error);
     }, [gameId]);
@@ -276,28 +304,46 @@ export default function GameViewer({ gameId }: { gameId: string }) {
     }, [game, turns, currentTurn, currentAction, northCharacters, southCharacters, getCharacterByToken, northPlayer, southPlayer]);
 
     useEffect(() => {
-        if (!autoplay || !turns.length) return;
+        if (!autoplay || skipToSpell || !turns.length) return;
 
-        const intvl = setInterval(() => {
-            setCurrentAction((prevAction) => {
-                const actionCount = turns[currentTurn]?.actions.length ?? 0;
+        const nextStep = getNextStep(currentTurn, currentAction);
+        if (!nextStep) {
+            setAutoplay(false);
+            return;
+        }
 
-                if (prevAction < actionCount - 1) {
-                    return prevAction + 1;
-                }
+        const currentStepAction = turns[currentTurn]?.actions[currentAction];
+        const delay = currentStepAction?.type === 'spell' ? SPELL_ACTION_TIMER : FAST_ACTION_TIMER;
+        const timeoutId = setTimeout(() => {
+            setCurrentTurn(nextStep.turnIndex);
+            setCurrentAction(nextStep.actionIndex);
+        }, delay);
 
-                if (currentTurn < turns.length - 1) {
-                    setCurrentTurn((prevTurn) => prevTurn + 1);
-                    return 0;
-                }
+        return () => clearTimeout(timeoutId);
+    }, [autoplay, skipToSpell, turns, currentTurn, currentAction, getNextStep]);
 
+    useEffect(() => {
+        if (!skipToSpell || !turns.length) return;
+
+        const nextStep = getNextStep(currentTurn, currentAction);
+        if (!nextStep) {
+            setSkipToSpell(false);
+            setAutoplay(false);
+            return;
+        }
+
+        const timeoutId = setTimeout(() => {
+            setCurrentTurn(nextStep.turnIndex);
+            setCurrentAction(nextStep.actionIndex);
+
+            if (nextStep.action?.type === 'spell') {
+                setSkipToSpell(false);
                 setAutoplay(false);
-                return prevAction;
-            });
-        }, ACTION_TIMER);
+            }
+        }, SKIP_TO_SPELL_TIMER);
 
-        return () => clearInterval(intvl);
-    }, [autoplay, turns, currentTurn]);
+        return () => clearTimeout(timeoutId);
+    }, [skipToSpell, turns, currentTurn, currentAction, getNextStep]);
 
     useEffect(() => {
         if (!game) return;
@@ -376,8 +422,11 @@ export default function GameViewer({ gameId }: { gameId: string }) {
             </div>
             <div class={turns[currentTurn].active === 'south' ? 'text-green-600 font-bold' : 'text-gray-600'}>{southPlayer?.username ?? 'South'}</div>
 
-            <button disabled={!canGoNext} onClick={() => setAutoplay(!autoplay)}>
+            <button disabled={!canGoNext} onClick={() => { setSkipToSpell(false); setAutoplay(!autoplay); }}>
                 { autoplay ? <IconPlayerPause /> : <IconPlayerPlay /> }
+            </button>
+            <button disabled={!canGoNext} onClick={() => { setAutoplay(false); setSkipToSpell(true); }}>
+                <IconPlayerSkipForward />
             </button>
             <button disabled={!canGoNext} onClick={goNext}>
                 <IconArrowNarrowRight />
@@ -385,11 +434,11 @@ export default function GameViewer({ gameId }: { gameId: string }) {
             <button disabled={!canGoPrev} onClick={goPrev}>
                 <IconArrowNarrowLeft />
             </button>
-            <button onClick={() => { setCurrentTurn(0); setCurrentAction(3); }}>
+            <button onClick={() => { setCurrentTurn(0); setCurrentAction(3); setAutoplay(false); setSkipToSpell(false); }}>
                 <IconRefresh />
             </button>
 
-            <select onChange={e => setCurrentTurn(parseInt(e.currentTarget.value))} value={currentTurn}>
+            <select onChange={e => { setSkipToSpell(false); setCurrentTurn(parseInt(e.currentTarget.value)); }} value={currentTurn}>
                 {Array.from({ length: turns.length }).map((_,i) => {
                     if (i === 0) return <option value={0}>Game Start</option>;
                     else return <option value={i}>Turn {i}</option>

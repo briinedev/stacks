@@ -14,22 +14,20 @@ type GameStub = {
 
 export default function Latest() {
     const [latest, setLatest] = useState([] as GameStub[]);
+    const [viewerId, setViewerId] = useState(undefined as string | undefined);
 
     useEffect(() => {
         fetch(import.meta.env.VITE_API_HOST + '/latest')
             .then(res => res.json())
             .then(data => {
                 setLatest(data.latest || []);
+                setViewerId(data.latest[0].id);
             })
             .catch(console.error);
     }, []);
 
     return (
-        <div class="flex">
-            <div>
-                {latest.length && <GameViewer gameId={latest[0].id} />}
-            </div>
-            {/*
+        <div>
             <div>
                 <table class="text-left border-separate border-spacing-2">
                     <thead>
@@ -43,7 +41,7 @@ export default function Latest() {
                     <tbody>
                         {
                             latest.map(game => (
-                                <tr>
+                                <tr onClick={() => setViewerId(game.id)} class="cursor-pointer">
                                     <td>S</td>
                                     <td>S</td>
                                     <td>N/A</td>
@@ -53,7 +51,10 @@ export default function Latest() {
                         }
                     </tbody>
                 </table>
-            </div>*/}
+            </div>*
+            <div>
+                {viewerId && <GameViewer gameId={viewerId} />}
+            </div>
         </div>
     );
 }

@@ -53,8 +53,8 @@ export default class CharacterEmulator {
         this.secondary = char.secondaryElement.id;
         this.hp = CHAR_MAX_HP;
         this.defended = defended;
-        this.stamina = 2;
-        this.maxStamina = char.class === 'defender' ? 5 : 3;
+        this.stamina = 3;
+        this.maxStamina = char.class === 'defender' ? 8 : 5;
         this.spells = char.spells;
         this.attacks = char.attacks;
     }
@@ -64,6 +64,7 @@ export default class CharacterEmulator {
     }
 
     regainStamina() {
+        if (this.hp < 1) return;
         this.stamina = Math.min(this.stamina + 1, this.maxStamina);
     }
 

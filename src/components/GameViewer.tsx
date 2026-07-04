@@ -20,7 +20,13 @@ type Game = {
     created_at: string,
 };
 
-const ACTION_TIMER = 500;
+type User = {
+    id: string,
+    username: string,
+    avatar_url?: string,
+};
+
+const ACTION_TIMER = 250;
 
 export default function GameViewer({ gameId }: { gameId: string }) {
     const [game, setGame] = useState(undefined as Game | undefined);
@@ -30,6 +36,9 @@ export default function GameViewer({ gameId }: { gameId: string }) {
 
     const [currentTurn, setCurrentTurn] = useState(0);
     const [currentAction, setCurrentAction] = useState(3);
+
+    const [northPlayer, setNorthPlayer] = useState(undefined as User | undefined);
+    const [southPlayer, setSouthPlayer] = useState(undefined as User | undefined);
 
     const [stack, updateStack] = useState({
         red: 0,
@@ -79,7 +88,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 if (action.id === 'defend' && action.source === charEmu.id) charEmu.defended = true;
 
                 if (action.source === charEmu.id && action.type !== 'defend') {
-                    charEmu.useStamina(action.type === 'spell' ? 5 : 1);
+                    charEmu.useStamina(action.type === 'spell' ? 8 : 1);
                 }
                 if (turn.active !== side && ti !== 0) charEmu.regainStamina();
 
@@ -234,7 +243,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
         for (let i = 0; i < turns.length; i++) {
             if (i > currentTurn) break;
             const turn = turns[i];
-            ugl.push(`Turn start: ${game![turn.active]}`);
+            ugl.push(`Turn start: ${turn.active === 'north' ? northPlayer?.username ?? 'North' : southPlayer?.username ?? 'South'}`);
 
             for (let ai = 0; ai < turn.actions.length; ai++) {
                 if (i === currentTurn && ai > currentAction) break;
@@ -261,10 +270,10 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 setSelChar(source);
             }
 
-            if (turn.wins && currentAction >= turn.actions.length - 1) ugl.push(`${game![turn.active]} wins!`);
+            if (turn.wins && currentAction >= turn.actions.length - 1) ugl.push(`${turn.active === 'north' ? northPlayer?.username ?? 'North' : southPlayer?.username ?? 'South'} wins!`);
         }
         setGameLog(ugl);
-    }, [game, turns, currentTurn, currentAction, northCharacters, southCharacters, getCharacterByToken]);
+    }, [game, turns, currentTurn, currentAction, northCharacters, southCharacters, getCharacterByToken, northPlayer, southPlayer]);
 
     useEffect(() => {
         if (!autoplay || !turns.length) return;
@@ -290,24 +299,39 @@ export default function GameViewer({ gameId }: { gameId: string }) {
         return () => clearInterval(intvl);
     }, [autoplay, turns, currentTurn]);
 
+    useEffect(() => {
+        if (!game) return;
+        fetch(import.meta.env.VITE_API_HOST + '/user/' + game.north)
+            .then(res => res.json())
+            .then(data => setNorthPlayer(data.user))
+            .catch(console.error);
+
+        fetch(import.meta.env.VITE_API_HOST + '/user/' + game.south)
+            .then(res => res.json())
+            .then(data => setSouthPlayer(data.user))
+            .catch(console.error);
+    }, [game]);
+
     if (!game || !gameLog || !turns) return;
 
     return (
-        <div className="w-full">
-            <span class={turns[currentTurn].active === 'north' ? 'text-green-600 font-bold' : 'text-gray-600'}>HotGuy24</span>
+        <div className="w-full bg-gray-900 p-4 border">
+            <div class={turns[currentTurn].active === 'north' ? 'text-green-600 font-bold' : 'text-gray-600'}>{northPlayer?.username ?? 'North'}</div>
             <div class="flex w-full">
                 { northCharacters.map(char => <CharacterStatus char={char} onClick={() => setSelChar(char)} />) }
             </div>
 
-            <div class="flex">
-                <div class="border-r pr-4 w-1/2">
+            <div class="flex border-l border-b border-t border-r">
+                <div class="border-r px-4 w-1/2">
+                    <strong class="pt-4 block">Action Log</strong>
                     <div class="flex flex-col-reverse h-78 overflow-scroll text-nowrap mt-4 scrollbar-none">
                         {gameLog.toReversed().map(t => (<p>{t}</p>))}
                     </div>
                 </div>
-                <div class="p-4 border-r font-bold text-center">
+                <div class="p-4 font-bold text-center border-r">
+                    <strong class="block mb-4">Stack</strong>
                     <div class="h-44 grid grid-cols-2 grid-rows-4">
-                        <div class="bg-red-500 p-1 m-1 w-8 h-8 rounded-full">{stack.red}</div>
+                        <div class="bg-red-500 p-1 m-1 w-8 h-8 rounded-full mr-2">{stack.red}</div>
                         <div class="bg-blue-500 p-1 m-1 w-8 h-8 rounded-full">{stack.blue}</div>
                         <div class="bg-green-500 p-1 m-1 w-8 h-8 rounded-full">{stack.green}</div>
                         <div class="bg-yellow-500 p-1 m-1 w-8 h-8 rounded-full">{stack.yellow}</div>
@@ -317,7 +341,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                         <div class="bg-orange-500 p-1 m-1 w-8 h-8 rounded-full">{stack.orange}</div>
                     </div>
                 </div>
-                <div class="p-4 h-78 overflow-scroll scrollbar-none">
+                <div class="p-4 h-90 overflow-scroll scrollbar-none">
                     <div class="font-bold">{selChar?.name}</div>
                     <br />
                     <div>STA: {selChar?.stamina} / {selChar?.maxStamina}</div>
@@ -347,10 +371,10 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 </div>
             </div>
 
-            <span class={turns[currentTurn].active === 'south' ? 'text-green-600 font-bold' : 'text-gray-600'}>WeeWoo1337</span>
             <div class="flex w-full">
                 { southCharacters.map(char => <CharacterStatus char={char} onClick={() => setSelChar(char)} />) }
             </div>
+            <div class={turns[currentTurn].active === 'south' ? 'text-green-600 font-bold' : 'text-gray-600'}>{southPlayer?.username ?? 'South'}</div>
 
             <button disabled={!canGoNext} onClick={() => setAutoplay(!autoplay)}>
                 { autoplay ? <IconPlayerPause /> : <IconPlayerPlay /> }

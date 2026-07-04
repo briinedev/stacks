@@ -26,8 +26,18 @@ type User = {
     avatar_url?: string,
 };
 
+type CooldownAbility = {
+    id: string;
+    name: string;
+    baseCooldown: number;
+};
+
+type CooldownEntry = CooldownAbility & {
+    remaining: number;
+};
+
 const FAST_ACTION_TIMER = 160;
-const SPELL_ACTION_TIMER = 1500;
+const SPELL_ACTION_TIMER = 1250;
 const SKIP_TO_SPELL_TIMER = 50;
 
 export default function GameViewer({ gameId }: { gameId: string }) {
@@ -358,6 +368,84 @@ export default function GameViewer({ gameId }: { gameId: string }) {
             .catch(console.error);
     }, [game]);
 
+    const selectedCharCooldowns = useMemo(() => {
+        if (!game || !selChar) return [] as CooldownEntry[];
+
+        const selectedIsNorth = game.north_characters.some(c => c.id === selChar.id);
+        const selectedIsSouth = game.south_characters.some(c => c.id === selChar.id);
+        if (!selectedIsNorth && !selectedIsSouth) return [] as CooldownEntry[];
+
+        const selectedSide = selectedIsNorth ? 'north' : 'south';
+        const sideSpellPool = selectedSide === 'north' ? game.north_spellpool : game.south_spellpool;
+
+        const parseCooldown = (ability: unknown) => {
+            const cooldownValue = (ability as { currentCooldown?: number; cooldown?: number }).cooldown;
+            const currentValue = (ability as { currentCooldown?: number; cooldown?: number }).currentCooldown;
+            const value = cooldownValue ?? currentValue ?? 0;
+
+            return Math.max(0, value);
+        };
+
+        const abilities = [
+            ...selChar.spells.map(s => ({
+                id: s.id,
+                name: s.name,
+                baseCooldown: parseCooldown(s),
+            })),
+            ...sideSpellPool.map(s => ({
+                id: s.id,
+                name: s.name,
+                baseCooldown: parseCooldown(s),
+            })),
+        ] as CooldownAbility[];
+
+        const uniqueAbilities = Array.from(new Map(abilities.map(a => [a.id, a])).values());
+        const remainingById = new Map(uniqueAbilities.map(a => [a.id, 0]));
+        const selectedSideCharacterIds = new Set(
+            (selectedSide === 'north' ? game.north_characters : game.south_characters).map(c => c.id)
+        );
+
+        for (let ti = 0; ti < turns.length; ti++) {
+            if (ti > currentTurn) break;
+            const turn = turns[ti];
+
+            // Cooldowns tick down at the start of this character's side turn.
+            if (turn.active === selectedSide && ti !== 0) {
+                for (const [abilityId, remaining] of remainingById.entries()) {
+                    if (remaining > 0) remainingById.set(abilityId, remaining - 1);
+                }
+            }
+
+            for (let ai = 0; ai < turn.actions.length; ai++) {
+                if (!shouldIncludeAction(ti, ai)) break;
+                const action = turn.actions[ai];
+
+                const ability = uniqueAbilities.find(a => a.id === action.id);
+                if (!ability || ability.baseCooldown < 1) continue;
+
+                const sourceIsSelectedSide = selectedSideCharacterIds.has(action.source);
+
+                if (sourceIsSelectedSide) {
+                    remainingById.set(ability.id, ability.baseCooldown);
+                }
+            }
+        }
+
+        return uniqueAbilities.map(ability => ({
+            ...ability,
+            remaining: remainingById.get(ability.id) ?? 0,
+        })).sort((a, b) => {
+            const aCooling = a.remaining > 0 ? 1 : 0;
+            const bCooling = b.remaining > 0 ? 1 : 0;
+            if (aCooling !== bCooling) return bCooling - aCooling;
+            if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+            return a.name.localeCompare(b.name);
+        });
+    }, [game, selChar, turns, currentTurn, shouldIncludeAction]);
+
+    const coolingSpells = selectedCharCooldowns.filter(spell => spell.remaining > 0);
+    const readySpells = selectedCharCooldowns.filter(spell => spell.remaining <= 0);
+
     if (!game || !gameLog || !turns) return;
 
     return (
@@ -403,16 +491,25 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                     </div>
                     <br />
                     <div>
-                        <div class="font-bold">Cooldowns</div>
-                        {
-                            [...selChar?.spells || [], ...game.north_spellpool].map(s => {
-                                return (
-                                    <div>
-                                        {s.name}: Ready
-                                    </div>
-                                )
-                            })
-                        }
+                        <div class="font-bold">Spells</div>
+                        <div class="mt-2">
+                            <div class="text-gray-300 text-sm uppercase tracking-wide">Cooling Down</div>
+                            {coolingSpells.length === 0 && <div>None</div>}
+                            {coolingSpells.map(s => (
+                                <div key={s.id}>
+                                    {s.name}: {s.remaining} Turns
+                                </div>
+                            ))}
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-gray-300 text-sm uppercase tracking-wide">Ready</div>
+                            {readySpells.length === 0 && <div>None</div>}
+                            {readySpells.map(s => (
+                                <div key={s.id}>
+                                    {s.name}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

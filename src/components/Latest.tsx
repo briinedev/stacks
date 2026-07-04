@@ -5,9 +5,11 @@ type GameStub = {
     north: string,
     north_agent_name: string,
     north_agent_version: string,
+    north_agent_version_id: string;
     south: string,
     south_agent_name: string,
     south_agent_version: string,
+    south_agent_version_id: string;
     status: string,
     nwin: boolean,
     length: number,
@@ -56,8 +58,16 @@ export default function Latest() {
                             {latest.map(game => (
                                 <tr key={game.id} class="cursor-pointer border-b border-slate-800 hover:bg-slate-800/70">
                                     <td class="p-2"><a href={`/replay/${game.id}`}>View</a></td>
-                                    <td class="p-2">{game.nwin ? game.north_agent_name : game.south_agent_name}</td>
-                                    <td class="p-2">{game.nwin ? game.south_agent_name : game.north_agent_name}</td>
+                                    <td class="p-2">
+                                        <a href={game.nwin ? `/agents/${game.north_agent_version_id}` : `/agents/${game.south_agent_version_id}`}>
+                                        {game.nwin ? `${game.north_agent_name} (${game.north_agent_version})` : `${game.south_agent_name} (${game.south_agent_version})`}
+                                        </a>
+                                    </td>
+                                    <td class="p-2">
+                                        <a href={game.nwin ? `/agents/${game.south_agent_version_id}` : `/agents/${game.north_agent_version_id}`}>
+                                            {game.nwin ? `${game.south_agent_name} (${game.south_agent_version})` : `${game.north_agent_name} (${game.north_agent_version})`}
+                                        </a>
+                                    </td>
                                     <td class="p-2">{game.length}</td>
                                     <td class="p-2">{new Date(game.created_at).toLocaleDateString()}</td>
                                 </tr>

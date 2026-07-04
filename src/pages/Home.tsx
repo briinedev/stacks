@@ -5,16 +5,24 @@ import Latest from '../components/Latest';
 import SiteLayout from '../components/SiteLayout';
 
 type LeaderboardEntry = {
-    id: string;
+    agent_version_id: string;
+    version: string;
     name: string;
     owner: string;
     elo: number;
+};
+
+type Stats = {
+    queue: number;
+    pairings: number;
 };
 
 export default function Home() {
     const [leaderboard, setLeaderboard] = useState([] as LeaderboardEntry[]);
     const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
     const [leaderboardError, setLeaderboardError] = useState(null as string | null);
+
+    const [stats, setStats] = useState(undefined as Stats | undefined);
 
     useEffect(() => {
         let canceled = false;
@@ -46,6 +54,20 @@ export default function Home() {
         };
     }, []);
 
+    useEffect(() => {
+        fetch(import.meta.env.VITE_API_HOST + '/stats')
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch stats');
+                return res.json();
+            })
+            .then(data => {
+                setStats(data);
+            })
+            .catch((error: unknown) => {
+                console.error('Failed to fetch stats:', error);
+            });
+    }, []);
+
     return (
         <SiteLayout>
             <main class="px-4 sm:px-6 lg:px-8 pb-16 max-w-6xl mx-auto">
@@ -60,11 +82,19 @@ export default function Home() {
                 </section>
 
                 <section class="text-center border p-5 sm:p-8 my-8 bg-gray-900 rounded-lg">
-                    <h2 class="text-2xl sm:text-4xl block mb-3 sm:mb-4 break-words">Build an Agent</h2>
-                    <h3 class="text-3xl sm:text-5xl block break-words">Enter the Arena</h3>
+                    <h2 class="text-2xl sm:text-4xl block mb-3 sm:mb-4 break-words">Write Your Agent</h2>
+                    <h3 class="text-3xl sm:text-5xl block break-words">Compete Through Code</h3>
                     <p class="my-4 text-base sm:text-xl lg:text-2xl max-w-3xl mx-auto break-words">
-                        Compete against developers worldwide in a strategic battle of drafts, shared resource management, and ever-evolving tactics.
+                        See how your code stacks up against other developers worldwide in a strategic battle of drafts, shared resource management, and ever-evolving tactics.
                     </p>
+
+                    {
+                        stats && (
+                            <div class="mt-4 text-sm sm:text-base lg:text-lg break-words">
+                                <span class="font-semibold">{stats.queue}</span> agents queued - <span class="font-semibold">{stats.pairings}</span> pairings in progress
+                            </div>
+                        )
+                    }
 
                     <div class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto">
                         <a href="/docs" class="min-h-11 px-4 py-3 bg-blue-300 font-bold !text-gray-900 inline-flex items-center justify-center rounded text-base">
@@ -79,7 +109,7 @@ export default function Home() {
                 <section class="mt-10 sm:mt-12">
                     <h3 class="text-2xl sm:text-4xl text-center p-2 sm:p-4 break-words">Featured Match</h3>
                     <div class="w-full overflow-hidden">
-                        <GameViewer gameId="9732707ca71b0923a2f2de35a6f151a4b407ad46226ee39ffdefa99e1a4759ca" />
+                        <GameViewer gameId="04a4f49be3f767c855bcd2415806f010ee036456699e4b221ea8dc0ed1a3e5e7" />
                     </div>
                 </section>
 
@@ -102,7 +132,7 @@ export default function Home() {
                             <div class="p-3 border border-gray-700 bg-gray-900 rounded text-gray-300">No leaderboard entries yet.</div>
                         )}
                         {!loadingLeaderboard && !leaderboardError && leaderboard.map((entry, index) => (
-                            <div key={entry.id} class="p-3 border border-gray-700 bg-gray-900 rounded">
+                            <div key={entry.agent_version_id} class="p-3 border border-gray-700 bg-gray-900 rounded">
                                 <div class="text-sm text-gray-300">#{index + 1}</div>
                                 <div class="font-bold break-words">{entry.name}</div>
                                 <div class="text-sm text-gray-300 break-words">by {entry.owner}</div>
@@ -138,10 +168,10 @@ export default function Home() {
                                     </tr>
                                 )}
                                 {!loadingLeaderboard && !leaderboardError && leaderboard.map((entry, index) => (
-                                    <tr key={entry.id}>
+                                    <tr key={entry.agent_version_id}>
                                         <td class="p-2">#{index + 1}</td>
-                                        <td class="p-2 break-words">{entry.name}</td>
-                                        <td class="p-2 break-words">{entry.owner}</td>
+                                        <td class="p-2 break-words"><a href={`/agents/${entry.agent_version_id}`}>{entry.name} ({entry.version})</a></td>
+                                        <td class="p-2 break-words"><a href={`/users/${entry.owner}`}>{entry.owner}</a></td>
                                         <td class="p-2">{entry.elo}</td>
                                     </tr>
                                 ))}

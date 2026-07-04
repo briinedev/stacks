@@ -19,6 +19,7 @@ export default function App() {
                     <Route path="/" component={Home} />
                     <Route path="/docs" component={Docs} />
                     <Route path="/rules" component={Rules} />
+                    <Route path="/replay/:gameId" component={lazy(() => import('./pages/Viewer'))} />
                     <Route default component={NotFound} />
                 </Router>
             </ErrorBoundary>

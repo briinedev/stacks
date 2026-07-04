@@ -36,6 +36,21 @@ type CooldownEntry = CooldownAbility & {
     remaining: number;
 };
 
+type AgentVersion = {
+    agent: {
+        id: string;
+        user_id: string;
+        name: string;
+    },
+    version: {
+        id: string;
+        agent_id: string;
+        version: string;
+        label: string;
+        elo: number;
+    }
+}
+
 const FAST_ACTION_TIMER = 160;
 const SPELL_ACTION_TIMER = 1000;
 const SKIP_TO_SPELL_TIMER = 50;
@@ -52,6 +67,8 @@ export default function GameViewer({ gameId }: { gameId: string }) {
 
     const [northPlayer, setNorthPlayer] = useState(undefined as User | undefined);
     const [southPlayer, setSouthPlayer] = useState(undefined as User | undefined);
+    const [northAgent, setNorthAgent] = useState(undefined as AgentVersion | undefined);
+    const [southAgent, setSouthAgent] = useState(undefined as AgentVersion | undefined);
 
     const [stack, updateStack] = useState({
         red: 0,
@@ -357,14 +374,24 @@ export default function GameViewer({ gameId }: { gameId: string }) {
 
     useEffect(() => {
         if (!game) return;
-        fetch(import.meta.env.VITE_API_HOST + '/user/' + game.north)
+        fetch(import.meta.env.VITE_API_HOST + '/user/' + game.north.split(':')[0])
             .then(res => res.json())
             .then(data => setNorthPlayer(data.user))
             .catch(console.error);
+        
+        fetch(import.meta.env.VITE_API_HOST + '/agentVersions/' + game.north.split(':')[1])
+            .then(res => res.json())
+            .then(data => setNorthAgent(data))
+            .catch(console.error);
 
-        fetch(import.meta.env.VITE_API_HOST + '/user/' + game.south)
+        fetch(import.meta.env.VITE_API_HOST + '/user/' + game.south.split(':')[0])
             .then(res => res.json())
             .then(data => setSouthPlayer(data.user))
+            .catch(console.error);
+
+        fetch(import.meta.env.VITE_API_HOST + '/agentVersions/' + game.south.split(':')[1])
+            .then(res => res.json())
+            .then(data => setSouthAgent(data))
             .catch(console.error);
     }, [game]);
 
@@ -450,7 +477,9 @@ export default function GameViewer({ gameId }: { gameId: string }) {
 
     return (
         <div className="w-full bg-gray-900 p-2 sm:p-4 border">
-            <div class={turns[currentTurn].active === 'north' ? 'text-green-600 font-bold' : 'text-gray-600'}>{northPlayer?.username ?? 'North'}</div>
+            <div class={turns[currentTurn].active === 'north' ? 'text-green-600 font-bold' : 'text-gray-600'}>
+                {northAgent?.agent?.name} {northAgent?.version?.label} ({northPlayer?.username ?? 'North'})
+            </div>
             <div class="flex w-full flex-wrap">
                 { northCharacters.map(char => <CharacterStatus char={char} onClick={() => setSelChar(char)} />) }
             </div>
@@ -458,7 +487,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
             <div class="flex flex-col lg:flex-row border">
                 <div class="px-3 py-3 sm:px-4 lg:w-1/2 lg:border-r border-b lg:border-b-0">
                     <strong class="pt-4 block">Action Log</strong>
-                    <div class="flex flex-col-reverse h-56 sm:h-72 lg:h-78 overflow-auto mt-4 scrollbar-none break-words whitespace-normal">
+                    <div class="flex flex-col-reverse h-56 sm:h-72 lg:h-96 overflow-auto mt-4 scrollbar-none break-words whitespace-normal">
                         {gameLog.toReversed().map(t => (<p>{t}</p>))}
                     </div>
                 </div>
@@ -520,7 +549,9 @@ export default function GameViewer({ gameId }: { gameId: string }) {
             <div class="flex w-full flex-wrap">
                 { southCharacters.map(char => <CharacterStatus char={char} onClick={() => setSelChar(char)} />) }
             </div>
-            <div class={turns[currentTurn].active === 'south' ? 'text-green-600 font-bold' : 'text-gray-600'}>{southPlayer?.username ?? 'South'}</div>
+            <div class={turns[currentTurn].active === 'south' ? 'text-green-600 font-bold' : 'text-gray-600'}>
+                {southAgent?.agent?.name} {southAgent?.version?.label} ({southPlayer?.username ?? 'South'})
+            </div>
 
             <div class="mt-4 flex flex-wrap items-center gap-2">
                 <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoNext} onClick={() => { setSkipToSpell(false); setAutoplay(!autoplay); }}>

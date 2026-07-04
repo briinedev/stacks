@@ -76,7 +76,7 @@ export default function Test() {
             <section class="mt-10 sm:mt-12">
                 <h3 class="text-2xl sm:text-4xl text-center p-2 sm:p-4 break-words">Featured Match</h3>
                 <div class="w-full overflow-hidden">
-                    <GameViewer gameId="777e005f947e54f2da2f1bbd1440ddc769c741d475dd3b06d891a9e06a2a0a58" />
+                    <GameViewer gameId="20f723982d94cb6b9eddd4bd601f170d47ebb0d9c68eb5a9eb781ccbdc343a09" />
                 </div>
             </section>
 

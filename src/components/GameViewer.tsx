@@ -493,22 +493,25 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                     <div>
                         <div class="font-bold">Spells</div>
                         <div class="mt-2">
-                            <div class="text-gray-300 text-sm uppercase tracking-wide">Cooling Down</div>
-                            {coolingSpells.length === 0 && <div>None</div>}
+                            <div class="text-gray-300 text-sm uppercase tracking-wide">Cooling ({coolingSpells.length})</div>
+                            {coolingSpells.length === 0 && <div class="text-gray-400">None</div>}
                             {coolingSpells.map(s => (
-                                <div key={s.id}>
-                                    {s.name}: {s.remaining} Turns
+                                <div key={s.id} class="flex items-center justify-between gap-3">
+                                    <span class="truncate">{s.name}</span>
+                                    <span class="text-amber-300 font-semibold">{s.remaining}t</span>
                                 </div>
                             ))}
                         </div>
                         <div class="mt-3">
-                            <div class="text-gray-300 text-sm uppercase tracking-wide">Ready</div>
-                            {readySpells.length === 0 && <div>None</div>}
-                            {readySpells.map(s => (
-                                <div key={s.id}>
-                                    {s.name}
-                                </div>
-                            ))}
+                            <div class="text-gray-300 text-sm uppercase tracking-wide">Ready ({readySpells.length})</div>
+                            {readySpells.length === 0 && <div class="text-gray-400">None</div>}
+                            <div class="mt-1 flex flex-wrap gap-1.5">
+                                {readySpells.map(s => (
+                                    <span key={s.id} class="px-2 py-0.5 rounded bg-emerald-900/40 text-emerald-200 text-xs">
+                                        {s.name}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

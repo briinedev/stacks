@@ -376,15 +376,15 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 </div>
                 <div class="p-3 sm:p-4 font-bold text-center border-b lg:border-b-0 lg:border-r">
                     <strong class="block mb-4">Stack</strong>
-                    <div class="h-44 grid grid-cols-4 sm:grid-cols-2 grid-rows-2 sm:grid-rows-4">
-                        <div class="bg-red-500 p-1 m-1 w-8 h-8 rounded-full mr-2">{stack.red}</div>
-                        <div class="bg-blue-500 p-1 m-1 w-8 h-8 rounded-full">{stack.blue}</div>
-                        <div class="bg-green-500 p-1 m-1 w-8 h-8 rounded-full">{stack.green}</div>
-                        <div class="bg-yellow-500 p-1 m-1 w-8 h-8 rounded-full">{stack.yellow}</div>
-                        <div class="bg-white text-black p-1 m-1 w-8 h-8 rounded-full">{stack.white}</div>
-                        <div class="bg-black p-1 m-1 w-8 h-8 rounded-full">{stack.black}</div>
-                        <div class="bg-purple-500 p-1 m-1 w-8 h-8 rounded-full">{stack.purple}</div>
-                        <div class="bg-orange-500 p-1 m-1 w-8 h-8 rounded-full">{stack.orange}</div>
+                    <div class="h-auto sm:h-44 grid grid-cols-4 sm:grid-cols-2 grid-rows-2 sm:grid-rows-4 gap-2 sm:gap-0 place-items-center">
+                        <div class="bg-red-500 p-1 w-8 h-8 rounded-full">{stack.red}</div>
+                        <div class="bg-blue-500 p-1 w-8 h-8 rounded-full">{stack.blue}</div>
+                        <div class="bg-green-500 p-1 w-8 h-8 rounded-full">{stack.green}</div>
+                        <div class="bg-yellow-500 p-1 w-8 h-8 rounded-full">{stack.yellow}</div>
+                        <div class="bg-white text-black p-1 w-8 h-8 rounded-full">{stack.white}</div>
+                        <div class="bg-black p-1 w-8 h-8 rounded-full">{stack.black}</div>
+                        <div class="bg-purple-500 p-1 w-8 h-8 rounded-full">{stack.purple}</div>
+                        <div class="bg-orange-500 p-1 w-8 h-8 rounded-full">{stack.orange}</div>
                     </div>
                 </div>
                 <div class="p-3 sm:p-4 max-h-80 lg:max-h-none overflow-auto scrollbar-none">

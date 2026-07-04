@@ -1,7 +1,49 @@
 import { IconArrowRight, IconBrandDiscord, IconBrandGithub } from '@tabler/icons-preact';
+import { useEffect, useState } from 'preact/hooks';
 import GameViewer from '../components/GameViewer';
 
+type LeaderboardEntry = {
+    id: string;
+    name: string;
+    owner: string;
+    elo: number;
+};
+
 export default function Test() {
+    const [leaderboard, setLeaderboard] = useState([] as LeaderboardEntry[]);
+    const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
+    const [leaderboardError, setLeaderboardError] = useState(null as string | null);
+
+    useEffect(() => {
+        let canceled = false;
+
+        setLoadingLeaderboard(true);
+        setLeaderboardError(null);
+
+        fetch(import.meta.env.VITE_API_HOST + '/leaderboard')
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch leaderboard');
+                return res.json();
+            })
+            .then(data => {
+                if (canceled) return;
+                setLeaderboard(data.leaderboard || []);
+            })
+            .catch((error: unknown) => {
+                if (canceled) return;
+                const message = error instanceof Error ? error.message : 'Failed to fetch leaderboard';
+                setLeaderboardError(message);
+                setLeaderboard([]);
+            })
+            .finally(() => {
+                if (!canceled) setLoadingLeaderboard(false);
+            });
+
+        return () => {
+            canceled = true;
+        };
+    }, []);
+
     return (
         <main>
             <div class="text-center">
@@ -40,36 +82,29 @@ export default function Test() {
                         </tr>
                     </thead>
                     <tbody class="divide-y gap-2">
-                        <tr>
-                            <td class="p-2">#1</td>
-                            <td class="p-2">AlphaForge</td>
-                            <td class="p-2">SomeGuy</td>
-                            <td class="p-2">2417</td>
-                        </tr>
-                        <tr>
-                            <td>#2</td>
-                            <td>TitanAI</td>
-                            <td>SomeGuy</td>
-                            <td>2392</td>
-                        </tr>
-                        <tr>
-                            <td>#3</td>
-                            <td>VulcanMind</td>
-                            <td>SomeGuy</td>
-                            <td>2351</td>
-                        </tr>
-                        <tr>
-                            <td>#4</td>
-                            <td>HexStack</td>
-                            <td>SomeGuy</td>
-                            <td>2287</td>
-                        </tr>
-                        <tr>
-                            <td>#5</td>
-                            <td>EchoAgent</td>
-                            <td>SomeGuy</td>
-                            <td>2241</td>
-                        </tr>
+                        {loadingLeaderboard && (
+                            <tr>
+                                <td class="p-2 text-gray-300" colSpan={4}>Loading leaderboard...</td>
+                            </tr>
+                        )}
+                        {!loadingLeaderboard && leaderboardError && (
+                            <tr>
+                                <td class="p-2 text-red-300" colSpan={4}>Unable to load leaderboard: {leaderboardError}</td>
+                            </tr>
+                        )}
+                        {!loadingLeaderboard && !leaderboardError && leaderboard.length === 0 && (
+                            <tr>
+                                <td class="p-2 text-gray-300" colSpan={4}>No leaderboard entries yet.</td>
+                            </tr>
+                        )}
+                        {!loadingLeaderboard && !leaderboardError && leaderboard.map((entry, index) => (
+                            <tr key={entry.id}>
+                                <td class="p-2">#{index + 1}</td>
+                                <td class="p-2">{entry.name}</td>
+                                <td class="p-2">{entry.owner}</td>
+                                <td class="p-2">{entry.elo}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>

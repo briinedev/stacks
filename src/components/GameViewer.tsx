@@ -361,22 +361,22 @@ export default function GameViewer({ gameId }: { gameId: string }) {
     if (!game || !gameLog || !turns) return;
 
     return (
-        <div className="w-full bg-gray-900 p-4 border">
+        <div className="w-full bg-gray-900 p-2 sm:p-4 border">
             <div class={turns[currentTurn].active === 'north' ? 'text-green-600 font-bold' : 'text-gray-600'}>{northPlayer?.username ?? 'North'}</div>
-            <div class="flex w-full">
+            <div class="flex w-full flex-wrap">
                 { northCharacters.map(char => <CharacterStatus char={char} onClick={() => setSelChar(char)} />) }
             </div>
 
-            <div class="flex border-l border-b border-t border-r">
-                <div class="border-r px-4 w-1/2">
+            <div class="flex flex-col lg:flex-row border">
+                <div class="px-3 py-3 sm:px-4 lg:w-1/2 lg:border-r border-b lg:border-b-0">
                     <strong class="pt-4 block">Action Log</strong>
-                    <div class="flex flex-col-reverse h-78 overflow-scroll text-nowrap mt-4 scrollbar-none">
+                    <div class="flex flex-col-reverse h-56 sm:h-72 lg:h-78 overflow-auto mt-4 scrollbar-none break-words whitespace-normal">
                         {gameLog.toReversed().map(t => (<p>{t}</p>))}
                     </div>
                 </div>
-                <div class="p-4 font-bold text-center border-r">
+                <div class="p-3 sm:p-4 font-bold text-center border-b lg:border-b-0 lg:border-r">
                     <strong class="block mb-4">Stack</strong>
-                    <div class="h-44 grid grid-cols-2 grid-rows-4">
+                    <div class="h-44 grid grid-cols-4 sm:grid-cols-2 grid-rows-2 sm:grid-rows-4">
                         <div class="bg-red-500 p-1 m-1 w-8 h-8 rounded-full mr-2">{stack.red}</div>
                         <div class="bg-blue-500 p-1 m-1 w-8 h-8 rounded-full">{stack.blue}</div>
                         <div class="bg-green-500 p-1 m-1 w-8 h-8 rounded-full">{stack.green}</div>
@@ -387,7 +387,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                         <div class="bg-orange-500 p-1 m-1 w-8 h-8 rounded-full">{stack.orange}</div>
                     </div>
                 </div>
-                <div class="p-4 h-90 overflow-scroll scrollbar-none">
+                <div class="p-3 sm:p-4 max-h-80 lg:max-h-none overflow-auto scrollbar-none">
                     <div class="font-bold">{selChar?.name}</div>
                     <br />
                     <div>STA: {selChar?.stamina} / {selChar?.maxStamina}</div>
@@ -417,33 +417,35 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 </div>
             </div>
 
-            <div class="flex w-full">
+            <div class="flex w-full flex-wrap">
                 { southCharacters.map(char => <CharacterStatus char={char} onClick={() => setSelChar(char)} />) }
             </div>
             <div class={turns[currentTurn].active === 'south' ? 'text-green-600 font-bold' : 'text-gray-600'}>{southPlayer?.username ?? 'South'}</div>
 
-            <button disabled={!canGoNext} onClick={() => { setSkipToSpell(false); setAutoplay(!autoplay); }}>
-                { autoplay ? <IconPlayerPause /> : <IconPlayerPlay /> }
-            </button>
-            <button disabled={!canGoNext} onClick={() => { setAutoplay(false); setSkipToSpell(true); }}>
-                <IconPlayerSkipForward />
-            </button>
-            <button disabled={!canGoNext} onClick={goNext}>
-                <IconArrowNarrowRight />
-            </button>
-            <button disabled={!canGoPrev} onClick={goPrev}>
-                <IconArrowNarrowLeft />
-            </button>
-            <button onClick={() => { setCurrentTurn(0); setCurrentAction(3); setAutoplay(false); setSkipToSpell(false); }}>
-                <IconRefresh />
-            </button>
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+                <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoNext} onClick={() => { setSkipToSpell(false); setAutoplay(!autoplay); }}>
+                    { autoplay ? <IconPlayerPause /> : <IconPlayerPlay /> }
+                </button>
+                <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoNext} onClick={() => { setAutoplay(false); setSkipToSpell(true); }}>
+                    <IconPlayerSkipForward />
+                </button>
+                <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoNext} onClick={goNext}>
+                    <IconArrowNarrowRight />
+                </button>
+                <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoPrev} onClick={goPrev}>
+                    <IconArrowNarrowLeft />
+                </button>
+                <button class="px-3 py-2 border rounded bg-gray-800" onClick={() => { setCurrentTurn(0); setCurrentAction(3); setAutoplay(false); setSkipToSpell(false); }}>
+                    <IconRefresh />
+                </button>
 
-            <select onChange={e => { setSkipToSpell(false); setCurrentTurn(parseInt(e.currentTarget.value)); }} value={currentTurn}>
-                {Array.from({ length: turns.length }).map((_,i) => {
-                    if (i === 0) return <option value={0}>Game Start</option>;
-                    else return <option value={i}>Turn {i}</option>
-                })}
-            </select>
+                <select class="ml-auto w-full sm:w-auto px-2 py-2 border rounded bg-gray-800" onChange={e => { setSkipToSpell(false); setCurrentTurn(parseInt(e.currentTarget.value)); }} value={currentTurn}>
+                    {Array.from({ length: turns.length }).map((_,i) => {
+                        if (i === 0) return <option value={0}>Game Start</option>;
+                        else return <option value={i}>Turn {i}</option>
+                    })}
+                </select>
+            </div>
         </div>
     );
 }

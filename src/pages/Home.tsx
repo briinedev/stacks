@@ -45,111 +45,144 @@ export default function Test() {
     }, []);
 
     return (
-        <main>
-            <div class="text-center">
-                <div class="m-auto mt-12 mb-12">
-                    <img src="/favicon.svg" class="w-16 h-auto inline-block mr-2" />
-                    <span class="text-3xl block font-bold">Briine Stacks</span>
-                    <div class="p-4">
+        <main class="px-4 sm:px-6 lg:px-8 pb-16">
+            <section class="text-center mt-10 mb-10 sm:mt-12 sm:mb-12">
+                <div class="mx-auto max-w-3xl">
+                    <img src="/favicon.svg" class="w-14 sm:w-16 h-auto inline-block" />
+                    <span class="text-2xl sm:text-3xl block font-bold mt-2 break-words">Briine Stacks</span>
+                    <div class="p-4 text-sm sm:text-base break-words">
                         <IconBrandGithub class="inline-block hover:text-blue-500" /> Github <IconBrandDiscord class="inline-block hover:text-blue-500 ml-4" /> Discord
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="text-center border p-8 my-8 bg-gray-900">
-                <h2 class="text-4xl block mb-4">Build an Agent</h2>
-                <h3 class="text-5xl block">Enter the Arena</h3>
-                <p class="my-4 text-2xl max-w-120 m-auto">Compete against developers worldwide in a strategic battle of drafts, shared resource management, and ever-evolving tactics.</p>
+            <section class="text-center border p-5 sm:p-8 my-8 bg-gray-900 rounded-lg">
+                <h2 class="text-2xl sm:text-4xl block mb-3 sm:mb-4 break-words">Build an Agent</h2>
+                <h3 class="text-3xl sm:text-5xl block break-words">Enter the Arena</h3>
+                <p class="my-4 text-base sm:text-xl lg:text-2xl max-w-3xl mx-auto break-words">
+                    Compete against developers worldwide in a strategic battle of drafts, shared resource management, and ever-evolving tactics.
+                </p>
 
-                <div class="mt-8">
-                    <a href="/docs" class="p-4 bg-blue-300 font-bold !text-gray-900 mr-4 inline-block rounded">Get Started <IconArrowRight class="inline-block" /></a>
-                    <a href="/rules" class="p-4 bg-gray-300 font-bold !text-gray-900 inline-block rounded">Learn the Rules <IconArrowRight class="inline-block" /></a>
+                <div class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto">
+                    <a href="/docs" class="min-h-11 px-4 py-3 bg-blue-300 font-bold !text-gray-900 inline-flex items-center justify-center rounded text-base">
+                        Get Started <IconArrowRight class="inline-block ml-1" />
+                    </a>
+                    <a href="/rules" class="min-h-11 px-4 py-3 bg-gray-300 font-bold !text-gray-900 inline-flex items-center justify-center rounded text-base">
+                        Learn the Rules <IconArrowRight class="inline-block ml-1" />
+                    </a>
                 </div>
-            </div>
+            </section>
 
-            <h3 class="text-4xl text-center p-4">Featured Match</h3>
-            <GameViewer gameId="928bfe0cee668567a1bfe71e93d280670a2048c8da702854132f09354329f4cf" />
+            <section class="mt-10 sm:mt-12">
+                <h3 class="text-2xl sm:text-4xl text-center p-2 sm:p-4 break-words">Featured Match</h3>
+                <div class="w-full overflow-hidden">
+                    <GameViewer gameId="928bfe0cee668567a1bfe71e93d280670a2048c8da702854132f09354329f4cf" />
+                </div>
+            </section>
 
-            <div class="mt-12">
-                <h3 class="text-4xl mb-4 block text-center">Global Leaderboard</h3>
-                <table class="w-full table-auto text-left border-collapse border border-gray-400 bg-gray-900">
-                    <thead class="border-b">
-                        <tr>
-                            <th class="p-2">Rank</th>
-                            <th class="p-2">Agent</th>
-                            <th class="p-2">Author</th>
-                            <th class="p-2">Rating</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y gap-2">
-                        {loadingLeaderboard && (
+            <section class="mt-12">
+                <h3 class="text-2xl sm:text-4xl mb-4 block text-center break-words">Global Leaderboard</h3>
+
+                <div class="md:hidden grid grid-cols-1 gap-3">
+                    {loadingLeaderboard && (
+                        <div class="p-3 border border-gray-700 bg-gray-900 rounded text-gray-300">Loading leaderboard...</div>
+                    )}
+                    {!loadingLeaderboard && leaderboardError && (
+                        <div class="p-3 border border-red-800 bg-gray-900 rounded text-red-300 break-words">Unable to load leaderboard: {leaderboardError}</div>
+                    )}
+                    {!loadingLeaderboard && !leaderboardError && leaderboard.length === 0 && (
+                        <div class="p-3 border border-gray-700 bg-gray-900 rounded text-gray-300">No leaderboard entries yet.</div>
+                    )}
+                    {!loadingLeaderboard && !leaderboardError && leaderboard.map((entry, index) => (
+                        <div key={entry.id} class="p-3 border border-gray-700 bg-gray-900 rounded">
+                            <div class="text-sm text-gray-300">#{index + 1}</div>
+                            <div class="font-bold break-words">{entry.name}</div>
+                            <div class="text-sm text-gray-300 break-words">by {entry.owner}</div>
+                            <div class="mt-1 text-lg">{entry.elo}</div>
+                        </div>
+                    ))}
+                </div>
+
+                <div class="hidden md:block w-full overflow-x-auto">
+                    <table class="w-full min-w-[640px] table-auto text-left border-collapse border border-gray-400 bg-gray-900">
+                        <thead class="border-b">
                             <tr>
-                                <td class="p-2 text-gray-300" colSpan={4}>Loading leaderboard...</td>
+                                <th class="p-2">Rank</th>
+                                <th class="p-2">Agent</th>
+                                <th class="p-2">Author</th>
+                                <th class="p-2">Rating</th>
                             </tr>
-                        )}
-                        {!loadingLeaderboard && leaderboardError && (
-                            <tr>
-                                <td class="p-2 text-red-300" colSpan={4}>Unable to load leaderboard: {leaderboardError}</td>
-                            </tr>
-                        )}
-                        {!loadingLeaderboard && !leaderboardError && leaderboard.length === 0 && (
-                            <tr>
-                                <td class="p-2 text-gray-300" colSpan={4}>No leaderboard entries yet.</td>
-                            </tr>
-                        )}
-                        {!loadingLeaderboard && !leaderboardError && leaderboard.map((entry, index) => (
-                            <tr key={entry.id}>
-                                <td class="p-2">#{index + 1}</td>
-                                <td class="p-2">{entry.name}</td>
-                                <td class="p-2">{entry.owner}</td>
-                                <td class="p-2">{entry.elo}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody class="divide-y gap-2">
+                            {loadingLeaderboard && (
+                                <tr>
+                                    <td class="p-2 text-gray-300" colSpan={4}>Loading leaderboard...</td>
+                                </tr>
+                            )}
+                            {!loadingLeaderboard && leaderboardError && (
+                                <tr>
+                                    <td class="p-2 text-red-300" colSpan={4}>Unable to load leaderboard: {leaderboardError}</td>
+                                </tr>
+                            )}
+                            {!loadingLeaderboard && !leaderboardError && leaderboard.length === 0 && (
+                                <tr>
+                                    <td class="p-2 text-gray-300" colSpan={4}>No leaderboard entries yet.</td>
+                                </tr>
+                            )}
+                            {!loadingLeaderboard && !leaderboardError && leaderboard.map((entry, index) => (
+                                <tr key={entry.id}>
+                                    <td class="p-2">#{index + 1}</td>
+                                    <td class="p-2 break-words">{entry.name}</td>
+                                    <td class="p-2 break-words">{entry.owner}</td>
+                                    <td class="p-2">{entry.elo}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-            <div class="mt-12 mb-12">
-                <h3 class="text-4xl mb-4 block text-center">Start Your Journey</h3>
+            <section class="mt-12 mb-12">
+                <h3 class="text-2xl sm:text-4xl mb-4 block text-center break-words">Start Your Journey</h3>
 
-                <div class="flex text-center">
-                    <div class="w-1/3 p-4 m-2 bg-gray-900">
-                        <h4 class="text-2xl p-4">Create Your Agent</h4>
-                        <p class="text-lg">Using our <a href="#">TypeScript SDK</a>, or your favorite language using our <a href="#">WebSockets API</a>.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 text-center">
+                    <div class="p-4 bg-gray-900 rounded border border-gray-800">
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Create Your Agent</h4>
+                        <p class="text-base sm:text-lg break-words">Using our <a href="#">TypeScript SDK</a>, or your favorite language using our <a href="#">WebSockets API</a>.</p>
                     </div>
-                    <div class="w-1/3 p-4 m-2 bg-gray-900">
-                        <h4 class="text-2xl p-4">Compete</h4>
-                        <p class="text-lg">Connect your agent to our competitive environment to battle other agents, and find your relative rating.</p>
+                    <div class="p-4 bg-gray-900 rounded border border-gray-800">
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Compete</h4>
+                        <p class="text-base sm:text-lg break-words">Connect your agent to our competitive environment to battle other agents, and find your relative rating.</p>
                     </div>
-                    <div class="w-1/3 p-4 m-2 bg-gray-900">
-                        <h4 class="text-2xl p-4">Improve</h4>
-                        <p class="text-lg">Analyze replays, refine your strategies, and improve your rating in an ever-evolving battlefield!</p>
+                    <div class="p-4 bg-gray-900 rounded border border-gray-800">
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Improve</h4>
+                        <p class="text-base sm:text-lg break-words">Analyze replays, refine your strategies, and improve your rating in an ever-evolving battlefield!</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="mt-12 mb-12">
-                <h3 class="text-4xl mb-4 block text-center">Core Features</h3>
+            <section class="mt-12 mb-12">
+                <h3 class="text-2xl sm:text-4xl mb-4 block text-center break-words">Core Features</h3>
 
-                <div class="flex text-center">
-                    <div class="w-1/4 p-4 m-2 bg-gray-900">
-                        <h4 class="text-2xl p-4">Deterministic Matches</h4>
-                        <p class="text-lg">All matches are entirely devoid of randomness, other than which team begins the match.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-center">
+                    <div class="p-4 bg-gray-900 rounded border border-gray-800">
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Deterministic Matches</h4>
+                        <p class="text-base sm:text-lg break-words">All matches are entirely devoid of randomness, other than which team begins the match.</p>
                     </div>
-                    <div class="w-1/4 p-4 m-2 bg-gray-900">
-                        <h4 class="text-2xl p-4">Team Roster Draft Pick</h4>
-                        <p class="text-lg">Counterpick your opponents in a draft pick of 3 controllable characters in your match.</p>
+                    <div class="p-4 bg-gray-900 rounded border border-gray-800">
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Team Roster Draft Pick</h4>
+                        <p class="text-base sm:text-lg break-words">Counterpick your opponents in a draft pick of 3 controllable characters in your match.</p>
                     </div>
-                    <div class="w-1/4 p-4 m-2 bg-gray-900">
-                        <h4 class="text-2xl p-4">Strategic Action Selection</h4>
-                        <p class="text-lg">Select up to 8 powerful abilities that work well with your selected characters and strategy.</p>
+                    <div class="p-4 bg-gray-900 rounded border border-gray-800">
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Strategic Action Selection</h4>
+                        <p class="text-base sm:text-lg break-words">Select up to 8 powerful abilities that work well with your selected characters and strategy.</p>
                     </div>
-                    <div class="w-1/4 p-4 m-2 bg-gray-900">
-                        <h4 class="text-2xl p-4">Shared Action Economy</h4>
-                        <p class="text-lg">Actions interact with The Stack, a shared resource between sides. Choose wisely!</p>
+                    <div class="p-4 bg-gray-900 rounded border border-gray-800">
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Shared Action Economy</h4>
+                        <p class="text-base sm:text-lg break-words">Actions interact with The Stack, a shared resource between sides. Choose wisely!</p>
                     </div>
                 </div>
-            </div>
+            </section>
         </main>
     );
 }

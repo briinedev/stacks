@@ -2,7 +2,7 @@
     display: flex;
     border: 1px solid #FFF;
     padding: 1em;
-    width: 33.33%;
+    width: 100%;
 }
 
 .avatar {
@@ -38,6 +38,8 @@
 
 .stats {
     padding-left: 0.75em;
+    min-width: 0;
+    flex: 1;
 }
 
 .statRow {
@@ -85,4 +87,33 @@
 
     padding-left: 1em;
     padding-right: 1em;
+}
+
+@media (min-width: 640px) {
+    .Character {
+        width: 50%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .Character {
+        width: 33.33%;
+    }
+}
+
+@media (max-width: 480px) {
+    .avatar > img {
+        width: 3.2em;
+        height: 3.2em;
+    }
+
+    .avatar > .element {
+        top: 2.4em;
+        width: 1.2em;
+        height: 1.2em;
+    }
+
+    .statValue {
+        font-size: 0.75rem;
+    }
 }

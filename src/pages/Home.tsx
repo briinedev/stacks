@@ -92,7 +92,12 @@ export default function Home() {
                         <img src="/favicon.svg" class="w-14 sm:w-16 h-auto inline-block" />
                         <span class="text-2xl sm:text-3xl block font-bold mt-2 break-words">Briine Stacks</span>
                         <div class="p-4 text-sm sm:text-base break-words">
-                            <IconBrandGithub class="inline-block hover:text-blue-500" /> Github <IconBrandDiscord class="inline-block hover:text-blue-500 ml-4" /> Discord
+                            <a href="#" class="text-white hover:text-blue-500">
+                                <IconBrandGithub class="inline-block" /> Github
+                            </a>
+                            <a href="#" class="text-white hover:text-blue-500 ml-4">
+                                <IconBrandDiscord class="inline-block" /> Discord
+                            </a>
                         </div>
                     </div>
                 </section>
@@ -113,10 +118,10 @@ export default function Home() {
                     }
 
                     <div class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto">
-                        <a href="/docs" class="min-h-11 px-4 py-3 bg-blue-300 font-bold !text-gray-900 inline-flex items-center justify-center rounded text-base">
+                        <a href="/docs" class="min-h-11 px-4 py-3 bg-blue-300 font-bold text-gray-900 inline-flex items-center justify-center rounded text-base">
                             Get Started <IconArrowRight class="inline-block ml-1" />
                         </a>
-                        <a href="/rules" class="min-h-11 px-4 py-3 bg-gray-300 font-bold !text-gray-900 inline-flex items-center justify-center rounded text-base">
+                        <a href="/rules" class="min-h-11 px-4 py-3 bg-gray-300 font-bold text-gray-900 inline-flex items-center justify-center rounded text-base">
                             Learn the Rules <IconArrowRight class="inline-block ml-1" />
                         </a>
                     </div>
@@ -196,7 +201,7 @@ export default function Home() {
                     </div>
 
                     <div class="text-center mt-4">
-                        <a href="/leaderboard" class="min-h-11 px-4 py-3 bg-blue-300 font-bold !text-gray-900 inline-flex items-center justify-center rounded text-base">
+                        <a href="/leaderboard" class="min-h-11 px-4 py-3 bg-blue-300 font-bold text-gray-900 inline-flex items-center justify-center rounded text-base">
                             See All <IconArrowRight class="inline-block ml-1" />
                         </a>
                     </div>

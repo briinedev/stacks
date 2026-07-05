@@ -6,7 +6,7 @@ export default function NotFound() {
             <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
                 <h1 class="text-5xl font-bold">404</h1>
                 <p class="mt-3 text-slate-300">The page you requested does not exist.</p>
-                <a href="/" class="mt-6 inline-flex px-4 py-3 rounded bg-blue-500 !text-white font-semibold">Return Home</a>
+                <a href="/" class="mt-6 inline-flex px-4 py-3 rounded bg-blue-500 text-white font-semibold">Return Home</a>
             </main>
         </SiteLayout>
     );

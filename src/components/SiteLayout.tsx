@@ -15,7 +15,7 @@ export default function SiteLayout({ children }: SiteLayoutProps) {
                         <span>Briine Stacks</span>
                     </a>
                     <nav class="flex flex-wrap gap-2 sm:gap-3 text-sm sm:text-base">
-                        <a href="/" class="px-3 py-2 rounded hover:bg-slate-800">Home</a>
+                        <a href="/leaderboard" class="px-3 py-2 rounded hover:bg-slate-800">Leaderboard</a>
                         <a href="/docs" class="px-3 py-2 rounded hover:bg-slate-800">Docs</a>
                         <a href="/rules" class="px-3 py-2 rounded hover:bg-slate-800">Rules</a>
                     </nav>

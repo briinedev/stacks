@@ -24,6 +24,8 @@ export default function Home() {
 
     const [stats, setStats] = useState(undefined as Stats | undefined);
 
+    const [featured, setFeatured] = useState(undefined as string | undefined);
+
     useEffect(() => {
         let canceled = false;
 
@@ -68,6 +70,20 @@ export default function Home() {
             });
     }, []);
 
+    useEffect(() => {
+        fetch(import.meta.env.VITE_API_HOST + '/latest/highest-rated')
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch featured agent');
+                return res.json();
+            })
+            .then(data => {
+                setFeatured(data.match.id);
+            })
+            .catch((error: unknown) => {
+                console.error('Failed to fetch featured agent:', error);
+            });
+    }, []);
+
     return (
         <SiteLayout>
             <main class="px-4 sm:px-6 lg:px-8 pb-16 max-w-6xl mx-auto">
@@ -109,7 +125,7 @@ export default function Home() {
                 <section class="mt-10 sm:mt-12">
                     <h3 class="text-2xl sm:text-4xl text-center p-2 sm:p-4 break-words">Featured Match</h3>
                     <div class="w-full overflow-hidden">
-                        <GameViewer gameId="04a4f49be3f767c855bcd2415806f010ee036456699e4b221ea8dc0ed1a3e5e7" />
+                        { featured && <GameViewer gameId={featured} /> }
                     </div>
                 </section>
 

@@ -1,0 +1,22 @@
+export const metadata = {
+    slug: 'dev-log-building-the-editorial-layer',
+    title: 'Dev Log: Building An Editorial Layer For A Competitive Programming Arena',
+    summary: 'A dev log format for sharing why the site is adding more story and analysis surfaces around a deterministic game.',
+    category: 'dev-logs',
+    publishedAt: '2026-07-09',
+    author: 'Site Dev',
+    readMinutes: 4,
+    tags: ['dev log', 'content design', 'site architecture'],
+};
+
+The site already had raw utility: docs, rules, leaderboard, and replays. What it lacked was an editorial layer that could explain why a patch matters, why a match mattered, or why the ladder has moved in a particular direction.
+
+## Design goals
+
+- The feed needs to work for story posts today and richer CMS-backed publishing later.
+- Naming needs to stay flexible, so the section branding is configuration-backed instead of hard-coded into one page.
+- Categories need to reflect both player-facing and developer-facing content without forcing separate systems.
+
+## Why MDX
+
+Pure Markdown is easy to write and review, but story posts occasionally need richer embeds. MDX keeps the authoring flow mostly Markdown while allowing interactive components when a post genuinely benefits from them.

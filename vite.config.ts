@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import mdx from '@mdx-js/rollup';
 import preact from '@preact/preset-vite';
 
 import { cloudflare } from '@cloudflare/vite-plugin';
@@ -7,5 +8,5 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [preact(), cloudflare(), tailwindcss()],
+  plugins: [mdx({ jsxImportSource: 'preact' }), preact(), cloudflare(), tailwindcss()],
 });

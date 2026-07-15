@@ -1,4 +1,13 @@
+/// <reference types="vite/client" />
+
 declare module '*.css';
+declare module '*.mdx' {
+  import { ComponentType } from 'preact';
+
+  const MDXComponent: ComponentType<Record<string, unknown>>;
+  export default MDXComponent;
+}
+
 declare module '*.module.css' {
   const classes: { [key: string]: string };
   export default classes;

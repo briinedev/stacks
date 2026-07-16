@@ -46,7 +46,7 @@ export default function App() {
                         <Route path="/leaderboard" component={Leaderboard} />
                         <Route path="/agents/:agentVersionId" component={AgentProfile} />
                         <Route path="/users/:username" component={UserProfile} />
-                        <Route path="/replay/:gameId" component={lazy(() => import('./pages/Viewer'))} />
+                        <Route path="/replay/:matchId" component={lazy(() => import('./pages/Viewer'))} />
                         <Route default component={NotFound} />
                     </Router>
                 </ErrorBoundary>

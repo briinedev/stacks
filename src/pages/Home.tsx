@@ -140,7 +140,7 @@ export default function Home() {
             <section class="mt-10 sm:mt-12">
                 <h3 class="text-2xl sm:text-4xl text-center p-2 sm:p-4 break-words">Featured Match</h3>
                 <div class="w-full overflow-hidden">
-                    { featured && <GameViewer gameId={featured} /> }
+                    { featured && <GameViewer matchId={featured} /> }
                 </div>
             </section>
 

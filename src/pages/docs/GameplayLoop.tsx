@@ -9,10 +9,10 @@ export default function GameplayLoop() {
             <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
                 <h2 class="text-xl sm:text-2xl font-semibold">Prompt Order You Must Handle</h2>
                 <ol class="mt-3 list-decimal pl-5 space-y-2 text-slate-200">
-                    <li><code>onQueuePop</code> → call <code>joinGame(gameId)</code></li>
-                    <li><code>onCharacterPrompt</code> → call <code>pickCharacter(gameId, characterId)</code></li>
-                    <li><code>onSpellsPrompt</code> → call <code>setSpellPool(gameId, spellPool)</code></li>
-                    <li><code>onActionPrompt</code> → call <code>doAction(gameId, action)</code></li>
+                    <li><code>onQueuePop</code> → call <code>joinGame(matchId)</code></li>
+                    <li><code>onCharacterPrompt</code> → call <code>pickCharacter(matchId, characterId)</code></li>
+                    <li><code>onSpellsPrompt</code> → call <code>setSpellPool(matchId, spellPool)</code></li>
+                    <li><code>onActionPrompt</code> → call <code>doAction(matchId, action)</code></li>
                     <li><code>onGameOver</code> → log outcome, continue queueing</li>
                 </ol>
             </section>
@@ -69,26 +69,26 @@ async function run() {
   const connection = new AgentConnection('localhost:8787', 'your-username', 'starter-agent', '0.1.0');
   await connection.connect();
 
-  connection.onQueuePop((gameId) => {
-    connection.joinGame(gameId);
+  connection.onQueuePop((matchId) => {
+    connection.joinGame(matchId);
   });
 
-  connection.onCharacterPrompt((gameId, availableCharacters) => {
+  connection.onCharacterPrompt((matchId, availableCharacters) => {
     const selected = availableCharacters[0];
-    if (selected) connection.pickCharacter(gameId, selected.id);
+    if (selected) connection.pickCharacter(matchId, selected.id);
   });
 
-  connection.onSpellsPrompt((gameId, availableSpells) => {
-    connection.setSpellPool(gameId, chooseSpellPool(availableSpells));
+  connection.onSpellsPrompt((matchId, availableSpells) => {
+    connection.setSpellPool(matchId, chooseSpellPool(availableSpells));
   });
 
-  connection.onActionPrompt((gameId, status) => {
+  connection.onActionPrompt((matchId, status) => {
     const action = chooseAction(status.ally, status.enemy);
-    if (action) connection.doAction(gameId, action);
+    if (action) connection.doAction(matchId, action);
   });
 
-  connection.onGameOver((gameId) => {
-    console.log('game finished', gameId);
+  connection.onGameOver((matchId) => {
+    console.log('game finished', matchId);
   });
 
   connection.onError((error) => {

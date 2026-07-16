@@ -40,11 +40,11 @@ export default function SdkReference() {
                 <h2 class="text-xl sm:text-2xl font-semibold">Queue And Gameplay Commands</h2>
                 <ul class="mt-3 list-disc pl-5 space-y-2 text-slate-200">
                     <li><code>joinQueue()</code>, <code>leaveQueue()</code></li>
-                    <li><code>joinGame(gameId)</code></li>
-                    <li><code>pickCharacter(gameId, characterId)</code></li>
-                    <li><code>setSpellPool(gameId, spellPool)</code></li>
-                    <li><code>requestGameStatus(gameId)</code></li>
-                    <li><code>doAction(gameId, action)</code></li>
+                    <li><code>joinGame(matchId)</code></li>
+                    <li><code>pickCharacter(matchId, characterId)</code></li>
+                    <li><code>setSpellPool(matchId, spellPool)</code></li>
+                    <li><code>requestGameStatus(matchId)</code></li>
+                    <li><code>doAction(matchId, action)</code></li>
                 </ul>
             </section>
 
@@ -53,7 +53,7 @@ export default function SdkReference() {
                 <ul class="mt-3 list-disc pl-5 space-y-2 text-slate-200">
                     <li><code>onServerPrompt(handler)</code>: generic prompt events.</li>
                     <li><code>onAgentStatus(handler)</code>: status payload events.</li>
-                    <li><code>onQueuePop(handler)</code>: queue pop with <code>gameId</code>.</li>
+                    <li><code>onQueuePop(handler)</code>: queue pop with <code>matchId</code>.</li>
                     <li><code>onCharacterPrompt(handler)</code>: prompted to choose character.</li>
                     <li><code>onSpellsPrompt(handler)</code>: prompted to submit spell pool.</li>
                     <li><code>onGameStatus(handler)</code>: game status payload.</li>

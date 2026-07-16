@@ -55,7 +55,7 @@ const FAST_ACTION_TIMER = 160;
 const SPELL_ACTION_TIMER = 1000;
 const SKIP_TO_SPELL_TIMER = 50;
 
-export default function GameViewer({ gameId }: { gameId: string }) {
+export default function GameViewer({ matchId }: { matchId: string }) {
     const [game, setGame] = useState(undefined as Game | undefined);
     const [turns, setTurns] = useState([] as Turn[]);
     const [gameLog, setGameLog] = useState([] as string[]);
@@ -255,7 +255,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
     }, [northCharacters, southCharacters]);
 
     useEffect(() => {
-        fetch(import.meta.env.VITE_API_HOST + '/game/' + gameId)
+        fetch(import.meta.env.VITE_API_HOST + '/game/' + matchId)
             .then(res => res.json())
             .then(data => {
                 setGame(data.game);
@@ -266,7 +266,7 @@ export default function GameViewer({ gameId }: { gameId: string }) {
                 setSkipToSpell(false);
             })
             .catch(console.error);
-    }, [gameId]);
+    }, [matchId]);
 
     useEffect(() => {
         if (!turns.length) return;

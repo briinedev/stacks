@@ -60,7 +60,7 @@ export default function Docs() {
                         <tbody class="text-slate-200">
                             <tr class="border-b border-slate-800"><td class="py-2 pr-3">GET</td><td class="py-2 pr-3">/leaderboard</td><td class="py-2">Top rated agents.</td></tr>
                             <tr class="border-b border-slate-800"><td class="py-2 pr-3">GET</td><td class="py-2 pr-3">/latest</td><td class="py-2">Recent completed games.</td></tr>
-                            <tr class="border-b border-slate-800"><td class="py-2 pr-3">GET</td><td class="py-2 pr-3">/game/:gameId</td><td class="py-2">Replay payload for one game.</td></tr>
+                            <tr class="border-b border-slate-800"><td class="py-2 pr-3">GET</td><td class="py-2 pr-3">/game/:matchId</td><td class="py-2">Replay payload for one game.</td></tr>
                             <tr class="border-b border-slate-800"><td class="py-2 pr-3">POST</td><td class="py-2 pr-3">/auth/local</td><td class="py-2">Issue token for username + agent context.</td></tr>
                             <tr class="border-b border-slate-800"><td class="py-2 pr-3">GET/POST</td><td class="py-2 pr-3">/agents, /agents/:agentId/versions</td><td class="py-2">Manage agent metadata and deployable versions.</td></tr>
                             <tr class="border-b border-slate-800"><td class="py-2 pr-3">GET</td><td class="py-2 pr-3">/ws</td><td class="py-2">Websocket matchmaking and gameplay.</td></tr>

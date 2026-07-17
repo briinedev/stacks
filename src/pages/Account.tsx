@@ -18,6 +18,11 @@ export default function Account() {
     const [agentName, setAgentName] = useState('');
     const [agentVersion, setAgentVersion] = useState('');
 
+    function logout() {
+        window.localStorage.removeItem('token');
+        window.location.assign('/');
+    }
+
     function sanitizeAgentName(name: string, e: Event) {
         const sanitized = name.toLowerCase().replace(/[^a-z-]/g, '');
         setAgentName(sanitized);
@@ -151,7 +156,15 @@ export default function Account() {
 
     return (
         <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-            <h1 class="text-3xl sm:text-5xl font-bold">Account</h1>
+            <div class="flex items-center justify-between gap-4">
+                <h1 class="text-3xl sm:text-5xl font-bold">Account</h1>
+                <button
+                    onClick={logout}
+                    class="inline-flex items-center gap-1 rounded border border-slate-600 bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-700"
+                >
+                    Log Out
+                </button>
+            </div>
             
             { agents && agents.length ? (
                 <div class="mt-6">

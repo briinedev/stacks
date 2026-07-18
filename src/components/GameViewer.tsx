@@ -1,9 +1,27 @@
 import { useState, useEffect, useMemo, useCallback } from 'preact/hooks';
+import type { ComponentChildren } from 'preact';
 import parseGameLog, { Turn } from '../utils/parseGameLog';
 
 import CharacterStatus from './viewer/CharacterStatus';
-import CharacterEmulator, { Character, Attack, Spell, CHAR_MAX_HP } from '../utils/characterEmulator';
-import { IconArrowNarrowLeft, IconArrowNarrowRight, IconPlayerPause, IconPlayerPlay, IconPlayerSkipForward, IconRefresh } from '@tabler/icons-preact';
+import CharacterEmulator, { Character, Attack, Spell, CHAR_MAX_HP, getClassMeta } from '../utils/characterEmulator';
+import { IconArrowNarrowLeft, IconArrowNarrowRight, IconPlayerPause, IconPlayerPlay, IconPlayerSkipForward, IconRefresh, IconShield, IconSword, IconWand } from '@tabler/icons-preact';
+
+function renderClassIcon(className: string) {
+    const classMeta = getClassMeta(className);
+
+    switch (classMeta.iconKey) {
+        case 'assassin':
+            return <IconSword size={18} class="inline align-text-bottom text-rose-300" title={classMeta.label} />;
+        case 'defender':
+            return <IconShield size={18} class="inline align-text-bottom text-sky-300" title={classMeta.label} />;
+        case 'caster':
+            return <IconWand size={18} class="inline align-text-bottom text-cyan-300" title={classMeta.label} />;
+        case 'controller':
+            return <IconRefresh size={18} class="inline align-text-bottom text-amber-300" title={classMeta.label} />;
+        default:
+            return <IconShield size={18} class="inline align-text-bottom text-slate-300" title={classMeta.label} />;
+    }
+}
 
 type Game = {
     id: string,
@@ -37,6 +55,7 @@ type CooldownEntry = CooldownAbility & {
 };
 
 type AgentVersion = {
+    success?: boolean;
     agent: {
         id: string;
         user_id: string;
@@ -46,19 +65,45 @@ type AgentVersion = {
         id: string;
         agent_id: string;
         version: string;
-        label: string;
-        elo: number;
+        label?: string | null;
+        elo?: number;
     }
+}
+
+type ReplayResponse = {
+    success: boolean;
+    game: Game;
+};
+
+type UserResponse = {
+    success: boolean;
+    user?: User;
+};
+
+async function fetchJson<T>(url: string): Promise<T> {
+    const response = await fetch(url);
+    return await response.json() as T;
 }
 
 const FAST_ACTION_TIMER = 160;
 const SPELL_ACTION_TIMER = 1000;
 const SKIP_TO_SPELL_TIMER = 50;
 
+const ELEMENT_DOT: Record<string, string> = {
+    red: '🔴',
+    blue: '🔵',
+    green: '🟢',
+    yellow: '🟡',
+    white: '⚪',
+    black: '⚫',
+    purple: '🟣',
+    orange: '🟠',
+};
+
 export default function GameViewer({ matchId }: { matchId: string }) {
     const [game, setGame] = useState(undefined as Game | undefined);
     const [turns, setTurns] = useState([] as Turn[]);
-    const [gameLog, setGameLog] = useState([] as string[]);
+    const [gameLog, setGameLog] = useState([] as ComponentChildren[]);
     const [autoplay, setAutoplay] = useState(false);
     const [skipToSpell, setSkipToSpell] = useState(false);
 
@@ -100,6 +145,17 @@ export default function GameViewer({ matchId }: { matchId: string }) {
         return actionIndex <= currentAction;
     }, [currentTurn, currentAction]);
 
+    const getActionStaminaCost = useCallback((char: Character, side: 'north' | 'south', actionId: string, actionType: 'spell' | 'attack' | 'defend') => {
+        if (actionType === 'defend') return 0;
+
+        if (actionType === 'attack') {
+            return char.attacks.find(attack => attack.id === actionId)?.stamina ?? 1;
+        }
+
+        const sideSpellPool = side === 'north' ? (game?.north_spellpool || []) : (game?.south_spellpool || []);
+        return [...char.spells, ...sideSpellPool].find(spell => spell.id === actionId)?.stamina ?? 8;
+    }, [game]);
+
     const emulateCharacter = useCallback(function(char: Character, side: 'north' | 'south') {
         const charEmu = new CharacterEmulator(char);
 
@@ -118,18 +174,20 @@ export default function GameViewer({ matchId }: { matchId: string }) {
                 if (action.id === 'defend' && action.source === charEmu.id) charEmu.defended = true;
 
                 if (action.source === charEmu.id && action.type !== 'defend') {
-                    charEmu.useStamina(action.type === 'spell' ? 8 : 1);
+                    charEmu.useStamina(getActionStaminaCost(char, side, action.id, action.type));
                 }
-                if (turn.active !== side && ti !== 0) charEmu.regainStamina();
+                if (turn.active !== side && ti !== 0 && action.type !== 'defend') charEmu.regainStamina();
 
                 for (const effect of action.effects || []) {
-                    if (effect.target === charEmu.id) charEmu.hp -= effect.amount;
+                    if (effect.kind === 'hp' && effect.target === charEmu.id && typeof effect.amount === 'number') {
+                        charEmu.hp -= effect.amount;
+                    }
                 }
             }
         }
 
         return charEmu;
-    }, [currentTurn, shouldIncludeAction, turns]);
+    }, [currentTurn, getActionStaminaCost, shouldIncludeAction, turns]);
 
     const [selChar, setSelChar] = useState(game ? emulateCharacter(game?.north_characters[0], 'north') : undefined);
 
@@ -165,30 +223,17 @@ export default function GameViewer({ matchId }: { matchId: string }) {
                 if (!shouldIncludeAction(ti, ai)) break;
                 const action = turn.actions[ai];
 
-                if (action.type === 'attack') {
-                    const ref = [...northCharacters, ...southCharacters].at(decodeIndex(action.source)! - 1)?.attacks.find(a => a.id === action.id);
-                    if (!ref) console.error(`Cannot find attack ${action.id} on character ${action.source}`);
-                    else {
-                        const isController = 'controller' === [...northCharacters, ...southCharacters].at(decodeIndex(action.source)! - 1)?.class;
-                        newStack[ref.element.id] += isController ? 2 : 1;
-                    }
-                } else if (action.type === 'spell') {
-                    const ref = [
-                        ...[...northCharacters, ...southCharacters].at(decodeIndex(action.source)! - 1)?.spells || [],
-                        ...game?.north_spellpool || [],
-                        ...game?.south_spellpool || []
-                    ].find(s => s.id === action.id);
-                    if (!ref) console.error(`Cannot find spell ${action.id} on character ${action.source}`);
-                    else {
-                        const isCaster = 'caster' === [...northCharacters, ...southCharacters].at(decodeIndex(action.source)! - 1)?.class;
-                        newStack[ref.element.id] -= ref.stackCost - (isCaster ? 1 : 0);
+                for (const effect of action.effects || []) {
+                    if (effect.kind === 'stack' && effect.element && typeof effect.amount === 'number' && effect.op) {
+                        const delta = effect.op === 'g' ? effect.amount : -effect.amount;
+                        newStack[effect.element] = Math.max(0, (newStack[effect.element] ?? 0) + delta);
                     }
                 }
             }
         }
 
         updateStack(newStack);
-    }, [currentTurn, shouldIncludeAction, turns, northCharacters, southCharacters, game?.north_spellpool, game?.south_spellpool]);
+    }, [currentTurn, shouldIncludeAction, turns]);
 
     useEffect(() => {
         const clampActionIndex = (turnIndex: number, actionIndex: number) => {
@@ -255,17 +300,23 @@ export default function GameViewer({ matchId }: { matchId: string }) {
     }, [northCharacters, southCharacters]);
 
     useEffect(() => {
-        fetch(import.meta.env.VITE_API_HOST + '/game/' + matchId)
-            .then(res => res.json())
-            .then(data => {
+        const run = async () => {
+            try {
+                const data = await fetchJson<ReplayResponse>(import.meta.env.VITE_API_HOST + '/game/' + matchId);
+                if (!data?.game) return;
+
                 setGame(data.game);
                 setTurns(parseGameLog(data.game.log, data.game.south_characters));
                 setCurrentTurn(0);
                 setCurrentAction(3);
                 setAutoplay(false);
                 setSkipToSpell(false);
-            })
-            .catch(console.error);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        run();
     }, [matchId]);
 
     useEffect(() => {
@@ -294,33 +345,84 @@ export default function GameViewer({ matchId }: { matchId: string }) {
             return 'Unknown';
         }
 
-        const ugl = ['Game Start!'];
+        const ugl = ['Game Start!'] as ComponentChildren[];
         for (let i = 0; i < turns.length; i++) {
             if (i > currentTurn) break;
             const turn = turns[i];
-            ugl.push(`Turn start: ${turn.active === 'north' ? northPlayer?.username ?? 'North' : southPlayer?.username ?? 'South'}`);
+            const activeBotName = turn.active === 'north'
+                ? (northAgent?.agent?.name ?? northPlayer?.username ?? 'North')
+                : (southAgent?.agent?.name ?? southPlayer?.username ?? 'South');
+            ugl.push(`Turn start: ${activeBotName}`);
 
             for (let ai = 0; ai < turn.actions.length; ai++) {
                 if (i === currentTurn && ai > currentAction) break;
                 const action = turn.actions[ai];
                 const source = getCharacterByToken(action.source);
-                const actionType = action.type === 'attack' ? 'Attacks with' : action.type === 'spell' ? 'Casts' : 'Defends';
-                let log = `${source?.name ?? 'Unknown'} ${actionType}${['spell', 'attack'].includes(action.type) ? ` ${getActionName(action.id)}` : ''}`;
+                if (action.id === 'system') {
+                    let systemLog = 'System';
 
-                if (action.effects) log += ' (';
+                    if (action.effects && action.effects.length > 0) {
+                        systemLog += ' (';
+                        for (let ei = 0; ei < action.effects.length; ei++) {
+                            const effect = action.effects[ei];
+                            if (effect.kind === 'hp' && effect.target && typeof effect.amount === 'number') {
+                                const target = getCharacterByToken(effect.target);
+                                if (target) {
+                                    systemLog += `${target.name} ${effect.amount >= 0 ? `-${effect.amount}` : `+${Math.abs(effect.amount)}`}`;
+                                }
+                            } else if (effect.kind === 'stack' && effect.element && typeof effect.amount === 'number' && effect.op) {
+                                const icon = ELEMENT_DOT[effect.element] ?? '◯';
+                                systemLog += `${icon}${effect.op === 'g' ? '+' : '-'}${effect.amount}`;
+                            } else if (effect.kind === 'effect' && effect.op && effect.target && effect.effectId) {
+                                const target = getCharacterByToken(effect.target);
+                                const lifecycleIcon = effect.op === 'g' ? '✨' : '⌛';
+                                systemLog += `${lifecycleIcon}${target?.name ?? 'Unknown'} ${effect.effectId}`;
+                            }
+
+                            if (ei < action.effects.length - 1) {
+                                systemLog += ' ';
+                            }
+                        }
+                        systemLog += ')';
+                    }
+
+                    ugl.push(systemLog);
+                    continue;
+                }
+
+                let effectText = '';
 
                 for (let ei = 0; ei < (action.effects?.length ?? 0); ei++) {
                     const effect = action.effects![ei];
-                    const target = getCharacterByToken(effect.target);
-                    if (target) {
-                        log += `${target.name} ${effect.amount >= 0 ? `-${effect.amount}` : `+${Math.abs(effect.amount)}`}`;
-                        if (ei < action.effects!.length - 1) log += ' ';
+                    if (effect.kind === 'hp' && effect.target) {
+                        const target = getCharacterByToken(effect.target);
+                        if (target && typeof effect.amount === 'number') {
+                            effectText += `${target.name} ${effect.amount >= 0 ? `-${effect.amount}` : `+${Math.abs(effect.amount)}`}`;
+                        }
+                    } else if (effect.kind === 'stack' && effect.element && typeof effect.amount === 'number' && effect.op) {
+                        const icon = ELEMENT_DOT[effect.element] ?? '◯';
+                        effectText += `${icon}${effect.op === 'g' ? '+' : '-'}${effect.amount}`;
+                    } else if (effect.kind === 'effect' && effect.op && effect.target && effect.effectId) {
+                        const target = getCharacterByToken(effect.target);
+                        const lifecycleIcon = effect.op === 'g' ? '✨' : '⌛';
+                        effectText += `${lifecycleIcon}${target?.name ?? 'Unknown'} ${effect.effectId}`;
+                    }
+
+                    if (ei < action.effects!.length - 1) {
+                        effectText += ' ';
                     }
                 }
 
-                if (action.effects) log += ')';
-
-                ugl.push(log);
+                ugl.push(
+                    <span>
+                        <span class="mr-1">{source?.name ?? 'Unknown'}</span>
+                        {action.type === 'attack' ? <IconSword size={16} class="inline align-text-bottom text-rose-300" /> : null}
+                        {action.type === 'spell' ? <IconWand size={16} class="inline align-text-bottom text-cyan-300" /> : null}
+                        {action.type === 'defend' ? <IconShield size={16} class="inline align-text-bottom text-emerald-300" /> : null}
+                        {['spell', 'attack'].includes(action.type) ? <span>{` ${getActionName(action.id)}`}</span> : null}
+                        {effectText ? <span>{` (${effectText})`}</span> : null}
+                    </span>
+                );
 
                 setSelChar(source);
             }
@@ -328,7 +430,7 @@ export default function GameViewer({ matchId }: { matchId: string }) {
             if (turn.wins && currentAction >= turn.actions.length - 1) ugl.push(`${turn.active === 'north' ? northPlayer?.username ?? 'North' : southPlayer?.username ?? 'South'} wins!`);
         }
         setGameLog(ugl);
-    }, [game, turns, currentTurn, currentAction, northCharacters, southCharacters, getCharacterByToken, northPlayer, southPlayer]);
+    }, [game, turns, currentTurn, currentAction, northCharacters, southCharacters, getCharacterByToken, northPlayer, southPlayer, northAgent, southAgent]);
 
     useEffect(() => {
         if (!autoplay || skipToSpell || !turns.length) return;
@@ -374,25 +476,25 @@ export default function GameViewer({ matchId }: { matchId: string }) {
 
     useEffect(() => {
         if (!game) return;
-        fetch(import.meta.env.VITE_API_HOST + '/user/' + game.north.split(':')[0])
-            .then(res => res.json())
-            .then(data => setNorthPlayer(data.user))
-            .catch(console.error);
-        
-        fetch(import.meta.env.VITE_API_HOST + '/agentVersions/' + game.north.split(':')[1])
-            .then(res => res.json())
-            .then(data => setNorthAgent(data))
-            .catch(console.error);
+        const run = async () => {
+            try {
+                const [northUser, northVersion, southUser, southVersion] = await Promise.all([
+                    fetchJson<UserResponse>(import.meta.env.VITE_API_HOST + '/user/' + game.north.split(':')[0]),
+                    fetchJson<AgentVersion>(import.meta.env.VITE_API_HOST + '/agentVersions/' + game.north.split(':')[1]),
+                    fetchJson<UserResponse>(import.meta.env.VITE_API_HOST + '/user/' + game.south.split(':')[0]),
+                    fetchJson<AgentVersion>(import.meta.env.VITE_API_HOST + '/agentVersions/' + game.south.split(':')[1]),
+                ]);
 
-        fetch(import.meta.env.VITE_API_HOST + '/user/' + game.south.split(':')[0])
-            .then(res => res.json())
-            .then(data => setSouthPlayer(data.user))
-            .catch(console.error);
+                setNorthPlayer(northUser.user);
+                setNorthAgent(northVersion);
+                setSouthPlayer(southUser.user);
+                setSouthAgent(southVersion);
+            } catch (error) {
+                console.error(error);
+            }
+        };
 
-        fetch(import.meta.env.VITE_API_HOST + '/agentVersions/' + game.south.split(':')[1])
-            .then(res => res.json())
-            .then(data => setSouthAgent(data))
-            .catch(console.error);
+        run();
     }, [game]);
 
     const selectedCharCooldowns = useMemo(() => {
@@ -473,54 +575,81 @@ export default function GameViewer({ matchId }: { matchId: string }) {
     const coolingSpells = selectedCharCooldowns.filter(spell => spell.remaining > 0);
     const readySpells = selectedCharCooldowns.filter(spell => spell.remaining <= 0);
 
-    if (!game || !gameLog || !turns) return;
+    if (!game || turns.length === 0) return null;
+
+    const activeSide = turns[currentTurn]?.active;
 
     return (
-        <div className="w-full bg-gray-900 p-2 sm:p-4 border">
-            <div class={turns[currentTurn].active === 'north' ? 'text-green-600 font-bold' : 'text-gray-600'}>
-                {northAgent?.agent?.name} {northAgent?.version?.label} ({northPlayer?.username ?? 'North'})
+        <div class="w-full rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-3 sm:p-5 shadow-2xl shadow-cyan-950/30">
+            <div class={activeSide === 'north' ? 'mb-2 rounded-xl border border-emerald-500/40 bg-emerald-900/30 px-3 py-2 text-emerald-200 font-semibold text-sm sm:text-base' : 'mb-2 rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-slate-300 text-sm sm:text-base'}>
+                {northAgent?.agent?.name} {northAgent?.version?.label ?? northAgent?.version?.version} ({northPlayer?.username ?? 'North'})
             </div>
-            <div class="flex w-full flex-wrap">
+
+            <div class="grid w-full grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-1 sm:gap-2 rounded-xl border border-slate-800 bg-slate-900/50 p-2 sm:p-3">
                 { northCharacters.map(char => <CharacterStatus char={char} onClick={() => setSelChar(char)} />) }
             </div>
 
-            <div class="flex flex-col lg:flex-row border">
-                <div class="px-3 py-3 sm:px-4 lg:w-1/2 lg:border-r border-b lg:border-b-0">
-                    <strong class="pt-4 block">Action Log</strong>
-                    <div class="flex flex-col-reverse h-56 sm:h-72 lg:h-96 overflow-auto mt-4 scrollbar-none break-words whitespace-normal">
-                        {gameLog.toReversed().map(t => (<p>{t}</p>))}
+            <div class="mt-3 grid grid-cols-1 lg:grid-cols-12 gap-3">
+                <div class="rounded-xl border border-slate-700 bg-slate-900/70 p-3 sm:p-4 lg:col-span-6">
+                    <strong class="block text-slate-100 tracking-wide">Action Log</strong>
+                    <div class="mt-3 flex flex-col-reverse h-56 sm:h-72 lg:h-[28rem] overflow-auto scrollbar-none break-words whitespace-normal rounded-lg border border-slate-800 bg-slate-950/70 p-2 sm:p-3 text-sm sm:text-base text-left">
+                        {gameLog.toReversed().map((t, i) => (<p key={i} class="py-0.5">{t}</p>))}
                     </div>
                 </div>
-                <div class="py-3 px-2 font-bold text-center border-b lg:border-b-0 lg:border-r">
-                    <strong class="block mb-4">Stack</strong>
-                    <div class="h-auto sm:h-44 grid grid-cols-4 sm:grid-cols-2 grid-rows-2 sm:grid-rows-4 gap-2 sm:gap-2 place-items-center min-w-16">
-                        <div class="bg-red-500 p-1 w-8 h-8 rounded-full">{stack.red}</div>
-                        <div class="bg-blue-500 p-1 w-8 h-8 rounded-full">{stack.blue}</div>
-                        <div class="bg-green-500 p-1 w-8 h-8 rounded-full">{stack.green}</div>
-                        <div class="bg-yellow-500 p-1 w-8 h-8 rounded-full">{stack.yellow}</div>
-                        <div class="bg-white text-black p-1 w-8 h-8 rounded-full">{stack.white}</div>
-                        <div class="bg-black p-1 w-8 h-8 rounded-full">{stack.black}</div>
-                        <div class="bg-purple-500 p-1 w-8 h-8 rounded-full">{stack.purple}</div>
-                        <div class="bg-orange-500 p-1 w-8 h-8 rounded-full">{stack.orange}</div>
+
+                <div class="rounded-xl border border-slate-700 bg-slate-900/70 p-3 sm:p-4 lg:col-span-2">
+                    <strong class="block mb-3 text-center text-slate-100 tracking-wide">Stack</strong>
+                    <div class="space-y-1.5 text-xs sm:text-sm">
+                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-red-500"></span>R</span><span class="font-semibold">{stack.red}</span></div>
+                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-blue-500"></span>B</span><span class="font-semibold">{stack.blue}</span></div>
+                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>G</span><span class="font-semibold">{stack.green}</span></div>
+                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-yellow-400"></span>Y</span><span class="font-semibold">{stack.yellow}</span></div>
+                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-white border border-slate-400"></span>W</span><span class="font-semibold">{stack.white}</span></div>
+                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-black border border-slate-500"></span>K</span><span class="font-semibold">{stack.black}</span></div>
+                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-fuchsia-600"></span>P</span><span class="font-semibold">{stack.purple}</span></div>
+                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-orange-500"></span>O</span><span class="font-semibold">{stack.orange}</span></div>
                     </div>
                 </div>
-                <div class="p-3 sm:p-4 max-h-80 lg:max-h-none overflow-auto scrollbar-none">
-                    <div class="font-bold">{selChar?.name}</div>
-                    <br />
-                    <div>STA: {selChar?.stamina} / {selChar?.maxStamina}</div>
-                    <div>HP: {selChar?.hp} / {CHAR_MAX_HP}</div>
-                    <br />
-                    <div>Class: {selChar?.class?.toUpperCase()}</div>
-                    <div>Primary: {selChar?.primary?.toUpperCase()}</div>
-                    <div>Secondary: {selChar?.secondary?.toUpperCase()}</div>
-                    <br />
-                    <div>
-                        <div>Effects</div>
-                        None
+
+                <div class="rounded-xl border border-slate-700 bg-slate-900/70 p-3 sm:p-4 overflow-auto scrollbar-none lg:col-span-4 text-left flex flex-col">
+                    <strong class="block text-slate-100 tracking-wide">Character Info</strong>
+                    <div class="mt-2 text-lg font-bold text-slate-100">
+                        {renderClassIcon(selChar?.class ?? '')}
+                        <span class="ml-1">{selChar?.name}</span>
                     </div>
-                    <br />
-                    <div>
-                        <div class="font-bold">Spells</div>
+                    <div class="mt-2 text-sm sm:text-base text-slate-300">STA: {selChar?.stamina} / {selChar?.maxStamina}</div>
+                    <div class="text-sm sm:text-base text-slate-300">HP: {selChar?.hp} / {CHAR_MAX_HP}</div>
+
+                    <div class="mt-3 space-y-1 text-sm sm:text-base">
+                        <div class="text-slate-300">Class: <span class="text-slate-100 font-semibold">{selChar?.class?.toUpperCase()}</span></div>
+                        <div class="text-slate-300">Primary: <span class="text-slate-100 font-semibold">{selChar?.primary?.toUpperCase()}</span></div>
+                        <div class="text-slate-300">Secondary: <span class="text-slate-100 font-semibold">{selChar?.secondary?.toUpperCase()}</span></div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="text-slate-300">Effects</div>
+                        <div class="text-slate-500 text-sm">None</div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="text-slate-300">Passives</div>
+                        {selChar?.passives?.length ? (
+                            <div class="mt-1 flex flex-wrap gap-1.5">
+                                {selChar.passives.map((passive) => (
+                                    <span
+                                        key={passive.name}
+                                        title={passive.description || passive.name}
+                                        class="px-2 py-0.5 rounded bg-cyan-900/40 text-cyan-200 text-xs"
+                                    >
+                                        {passive.name}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : <div class="text-slate-500 text-sm">None</div>}
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="font-bold text-slate-100">Spells</div>
                         <div class="mt-2">
                             <div class="text-gray-300 text-sm uppercase tracking-wide">Cooling ({coolingSpells.length})</div>
                             {coolingSpells.length === 0 && <div class="text-gray-400">None</div>}
@@ -546,31 +675,31 @@ export default function GameViewer({ matchId }: { matchId: string }) {
                 </div>
             </div>
 
-            <div class="flex w-full flex-wrap">
+            <div class="mt-3 grid w-full grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-1 sm:gap-2 rounded-xl border border-slate-800 bg-slate-900/50 p-2 sm:p-3">
                 { southCharacters.map(char => <CharacterStatus char={char} onClick={() => setSelChar(char)} />) }
             </div>
-            <div class={turns[currentTurn].active === 'south' ? 'text-green-600 font-bold' : 'text-gray-600'}>
-                {southAgent?.agent?.name} {southAgent?.version?.label} ({southPlayer?.username ?? 'South'})
+            <div class={activeSide === 'south' ? 'mt-2 rounded-xl border border-emerald-500/40 bg-emerald-900/30 px-3 py-2 text-emerald-200 font-semibold text-sm sm:text-base' : 'mt-2 rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-slate-300 text-sm sm:text-base'}>
+                {southAgent?.agent?.name} {southAgent?.version?.label ?? southAgent?.version?.version} ({southPlayer?.username ?? 'South'})
             </div>
 
-            <div class="mt-4 flex flex-wrap items-center gap-2">
-                <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoNext} onClick={() => { setSkipToSpell(false); setAutoplay(!autoplay); }}>
+            <div class="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-2 items-center rounded-xl border border-slate-700 bg-slate-900/70 p-2 sm:p-3">
+                <button class="h-10 sm:h-11 px-3 py-2 border border-slate-600 rounded bg-slate-800/90 disabled:opacity-50" disabled={!canGoNext} onClick={() => { setSkipToSpell(false); setAutoplay(!autoplay); }}>
                     { autoplay ? <IconPlayerPause /> : <IconPlayerPlay /> }
                 </button>
-                <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoNext} onClick={() => { setAutoplay(false); setSkipToSpell(true); }}>
+                <button class="h-10 sm:h-11 px-3 py-2 border border-slate-600 rounded bg-slate-800/90 disabled:opacity-50" disabled={!canGoNext} onClick={() => { setAutoplay(false); setSkipToSpell(true); }}>
                     <IconPlayerSkipForward />
                 </button>
-                <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoNext} onClick={goNext}>
+                <button class="h-10 sm:h-11 px-3 py-2 border border-slate-600 rounded bg-slate-800/90 disabled:opacity-50" disabled={!canGoNext} onClick={goNext}>
                     <IconArrowNarrowRight />
                 </button>
-                <button class="px-3 py-2 border rounded bg-gray-800" disabled={!canGoPrev} onClick={goPrev}>
+                <button class="h-10 sm:h-11 px-3 py-2 border border-slate-600 rounded bg-slate-800/90 disabled:opacity-50" disabled={!canGoPrev} onClick={goPrev}>
                     <IconArrowNarrowLeft />
                 </button>
-                <button class="px-3 py-2 border rounded bg-gray-800" onClick={() => { setCurrentTurn(0); setCurrentAction(3); setAutoplay(false); setSkipToSpell(false); }}>
+                <button class="h-10 sm:h-11 px-3 py-2 border border-slate-600 rounded bg-slate-800/90" onClick={() => { setCurrentTurn(0); setCurrentAction(3); setAutoplay(false); setSkipToSpell(false); }}>
                     <IconRefresh />
                 </button>
 
-                <select class="ml-auto w-full sm:w-auto px-2 py-2 border rounded bg-gray-800" onChange={e => { setSkipToSpell(false); setCurrentTurn(parseInt(e.currentTarget.value)); }} value={currentTurn}>
+                <select class="col-span-2 sm:col-span-5 w-full px-3 py-2 border border-slate-600 rounded bg-slate-800/90 text-sm sm:text-base" onChange={e => { setSkipToSpell(false); setCurrentTurn(parseInt(e.currentTarget.value)); }} value={currentTurn}>
                     {Array.from({ length: turns.length }).map((_,i) => {
                         if (i === 0) return <option value={0}>Game Start</option>;
                         else return <option value={i}>Turn {i}</option>

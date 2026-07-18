@@ -89,18 +89,6 @@
     padding-right: 1em;
 }
 
-@media (min-width: 640px) {
-    .Character {
-        width: 50%;
-    }
-}
-
-@media (min-width: 1024px) {
-    .Character {
-        width: 33.33%;
-    }
-}
-
 @media (max-width: 480px) {
     .avatar > img {
         width: 3.2em;

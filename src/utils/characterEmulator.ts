@@ -22,6 +22,11 @@ export type Spell = {
     },
 };
 
+export type Passive = {
+    name: string,
+    description?: string,
+};
+
 export type Character = {
     id: string,
     name: string,
@@ -30,7 +35,25 @@ export type Character = {
     secondaryElement: { id: string, op: string },
     attacks: Attack[],
     spells: Spell[],
+    passives?: Passive[],
 };
+
+export type ClassIconKey = 'assassin' | 'defender' | 'caster' | 'controller' | 'unknown';
+
+export function getClassMeta(className: string): { iconKey: ClassIconKey; label: string } {
+    switch (className?.toLowerCase()) {
+        case 'assassin':
+            return { iconKey: 'assassin', label: 'Assassin' };
+        case 'defender':
+            return { iconKey: 'defender', label: 'Defender' };
+        case 'caster':
+            return { iconKey: 'caster', label: 'Caster' };
+        case 'controller':
+            return { iconKey: 'controller', label: 'Controller' };
+        default:
+            return { iconKey: 'unknown', label: className || 'Unknown' };
+    }
+}
 
 export default class CharacterEmulator {
     id: string;
@@ -44,6 +67,7 @@ export default class CharacterEmulator {
     maxStamina: number;
     spells: Spell[];
     attacks: Attack[];
+    passives: Passive[];
 
     constructor(char: Character, defended = false) {
         this.id = char.id;
@@ -57,6 +81,7 @@ export default class CharacterEmulator {
         this.maxStamina = char.class === 'defender' ? 8 : 5;
         this.spells = char.spells;
         this.attacks = char.attacks;
+        this.passives = char.passives || [];
     }
 
     useStamina(num = 1) {

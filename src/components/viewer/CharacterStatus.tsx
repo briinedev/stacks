@@ -1,5 +1,23 @@
-import CharacterEmulator, { CHAR_MAX_HP } from '../../utils/characterEmulator';
+import CharacterEmulator, { CHAR_MAX_HP, getClassMeta } from '../../utils/characterEmulator';
+import { IconRefresh, IconShield, IconSword, IconWand } from '@tabler/icons-preact';
 import styles from './CharacterStatus.module.css';
+
+function renderClassIcon(className: string) {
+    const classMeta = getClassMeta(className);
+
+    switch (classMeta.iconKey) {
+        case 'assassin':
+            return <IconSword size={16} class="inline align-text-bottom text-rose-300" title={classMeta.label} />;
+        case 'defender':
+            return <IconShield size={16} class="inline align-text-bottom text-sky-300" title={classMeta.label} />;
+        case 'caster':
+            return <IconWand size={16} class="inline align-text-bottom text-cyan-300" title={classMeta.label} />;
+        case 'controller':
+            return <IconRefresh size={16} class="inline align-text-bottom text-amber-300" title={classMeta.label} />;
+        default:
+            return <IconShield size={16} class="inline align-text-bottom text-slate-300" title={classMeta.label} />;
+    }
+}
 
 function StatusBar({
     label,
@@ -46,7 +64,10 @@ export default function Character({ char, onClick }: { char: CharacterEmulator, 
             </div>
 
             <div class={styles.stats}>
-                <strong>{char.name} {char.defended ? '🛡️' : ''}</strong>
+                <strong>
+                    {renderClassIcon(char.class)} <span class="ml-1">{char.name}</span>
+                    {char.defended ? <IconShield size={16} class="ml-1 inline align-text-bottom text-emerald-300" title="Defending" /> : null}
+                </strong>
                 <StatusBar
                     label="STA"
                     value={char.stamina}

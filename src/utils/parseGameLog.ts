@@ -1,8 +1,13 @@
 import { Character } from './characterEmulator';
 
 export type Effect = {
-    target: string,
-    amount: number,
+    kind: 'hp' | 'stack' | 'effect',
+    target?: string,
+    amount?: number,
+    source?: string,
+    op?: 'g' | 's',
+    element?: string,
+    effectId?: string,
 };
 
 export type Action = {
@@ -62,17 +67,51 @@ export default function parseGameLog(log: string, southCharacterIds: Character[]
                     id: 'defend',
                     source: btoa(idNum),
                     type: 'defend',
+                    effects: [],
                 });
             } else if (['nw!', 'sw!'].includes(entry)) { // Win Condition
                 currentTurn.wins = true;
             } else { // Effects
-                const lastAction = currentTurn.actions.at(-1)!;
+                let lastAction = currentTurn.actions.at(-1);
+                if (!lastAction) {
+                    lastAction = {
+                        id: 'system',
+                        source: 'system',
+                        type: 'defend',
+                        effects: [],
+                    };
+                    currentTurn.actions.push(lastAction);
+                }
 
-                if (/^[1-6]:d:[-0-9]+/.test(entry)) {
-                    const [targetNum, , amount] = entry.split(':');
+                if (!lastAction.effects) {
+                    lastAction.effects = [];
+                }
+
+                if (/^[1-6]:d:[-0-9]+(?::[1-6])?$/.test(entry)) {
+                    const [targetNum, , amount, sourceNum] = entry.split(':');
                     lastAction.effects!.push({
+                        kind: 'hp',
                         target: btoa(targetNum),
                         amount: parseInt(amount),
+                        source: sourceNum ? btoa(sourceNum) : undefined,
+                    });
+                } else if (/^k:[gs]:[a-z]+:[0-9]+(?::[1-6])?$/.test(entry)) {
+                    const [, op, element, amount, sourceNum] = entry.split(':');
+                    lastAction.effects!.push({
+                        kind: 'stack',
+                        op: op as 'g' | 's',
+                        element,
+                        amount: parseInt(amount),
+                        source: sourceNum ? btoa(sourceNum) : undefined,
+                    });
+                } else if (/^e:[ae]:[1-6]:[a-z0-9_]+(?::[1-6])?$/.test(entry)) {
+                    const [, op, targetNum, effectId, sourceNum] = entry.split(':');
+                    lastAction.effects!.push({
+                        kind: 'effect',
+                        op: op === 'a' ? 'g' : 's',
+                        target: btoa(targetNum),
+                        effectId,
+                        source: sourceNum ? btoa(sourceNum) : undefined,
                     });
                 }
             }

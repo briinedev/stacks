@@ -35,7 +35,7 @@ export default function Home() {
     const [stats, setStats] = useState(undefined as Stats | undefined);
 
     const [featured, setFeatured] = useState(undefined as string | undefined);
-    const homePosts = chroniclePosts.slice(0, 3);
+    const launchPost = chroniclePosts[0];
 
     useEffect(() => {
         let canceled = false;
@@ -221,27 +221,27 @@ export default function Home() {
                 <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
                     <h3 class="text-2xl sm:text-4xl block break-words">{editorialBrand.title}</h3>
                     <a href="/chronicles" class="inline-flex items-center text-sky-300 hover:text-sky-200">
-                        Visit the feed <IconArrowRight class="inline-block ml-1" />
+                        Read launch post <IconArrowRight class="inline-block ml-1" />
                     </a>
                 </div>
 
                 <p class="text-slate-300 max-w-3xl">
-                    Match stories, patch notes, meta analysis, and dev logs now have a dedicated editorial surface that does not depend on replay embeds.
+                    The site launches with one editorial post that explains what Briine is and where the platform goes next.
                 </p>
 
-                <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    {homePosts.map(post => (
-                        <article key={post.slug} class="rounded-xl border border-slate-800 bg-gray-900 p-5">
-                            <div class="text-sm text-sky-300">{getCategoryMeta(post.category)?.label}</div>
-                            <h4 class="mt-2 text-xl font-semibold break-words">{post.title}</h4>
-                            <p class="mt-3 text-slate-300 text-sm sm:text-base">{post.summary}</p>
-                            <div class="mt-4 text-xs text-slate-400">{post.publishedAt} • {post.readMinutes} min read</div>
-                            <a href={`/chronicles/${post.slug}`} class="mt-4 inline-flex text-sky-300 hover:text-sky-200">
-                                Read article →
+                {launchPost && (
+                    <div class="mt-6 max-w-3xl">
+                        <article class="rounded-xl border border-slate-800 bg-gray-900 p-5">
+                            <div class="text-sm text-sky-300">{getCategoryMeta(launchPost.category)?.label}</div>
+                            <h4 class="mt-2 text-xl font-semibold break-words">{launchPost.title}</h4>
+                            <p class="mt-3 text-slate-300 text-sm sm:text-base">{launchPost.summary}</p>
+                            <div class="mt-4 text-xs text-slate-400">{launchPost.publishedAt} • {launchPost.readMinutes} min read</div>
+                            <a href={`/chronicles/${launchPost.slug}`} class="mt-4 inline-flex text-sky-300 hover:text-sky-200">
+                                Read launch post →
                             </a>
                         </article>
-                    ))}
-                </div>
+                    </div>
+                )}
             </section>
 
             <section class="mt-12 mb-12">

@@ -4,61 +4,40 @@ export default function RegisterAgent() {
     return (
         <DocsPageLayout
             title="Register Your Agent"
-            summary="Use the SDK management methods to create an agent, publish versions, and keep local runtime context synced."
+            summary="Make the bot's name, version, and secret explicit before you ship it."
         >
             <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">1. Discover Existing Agents</h2>
+                <h2 class="text-xl sm:text-2xl font-semibold">Pick a stable identity</h2>
                 <p class="mt-3 text-slate-200">
-                    Before creating anything new, list what already exists for your account.
-                </p>
-                <pre class="mt-4 overflow-x-auto rounded-md border border-slate-700 bg-slate-950 p-4 text-sm text-slate-100"><code>{`const agents = await connection.listAgents();
-const existing = agents.find((a) => a.name === 'starter-agent');`}</code></pre>
-            </section>
-
-            <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">2. Create Agent + First Version</h2>
-                <p class="mt-3 text-slate-200">
-                    If no matching agent exists, create it with an initial version in one call.
-                </p>
-                <pre class="mt-4 overflow-x-auto rounded-md border border-slate-700 bg-slate-950 p-4 text-sm text-slate-100"><code>{`let agentId = existing?.id;
-
-if (!agentId) {
-  const created = await connection.createAgent('starter-agent', '0.1.0');
-  agentId = created.agent?.id;
-}`}</code></pre>
-            </section>
-
-            <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">3. Publish New Versions</h2>
-                <p class="mt-3 text-slate-200">
-                    Use semantic-style versions and optional labels/config for experiment tracking.
-                </p>
-                <pre class="mt-4 overflow-x-auto rounded-md border border-slate-700 bg-slate-950 p-4 text-sm text-slate-100"><code>{`if (agentId) {
-  await connection.createAgentVersion(
-    agentId,
-    '0.2.0',
-    'first-heuristic-policy',
-    { strategy: 'baseline-v1', createdAt: Date.now() },
-  );
-}`}</code></pre>
-            </section>
-
-            <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">4. Keep Runtime Context Correct</h2>
-                <p class="mt-3 text-slate-200">
-                    After you switch the version you want to run, update local auth context and reconnect.
-                </p>
-                <pre class="mt-4 overflow-x-auto rounded-md border border-slate-700 bg-slate-950 p-4 text-sm text-slate-100"><code>{`connection.setAgentContext('starter-agent', '0.2.0');
-await connection.connect();`}</code></pre>
-                <p class="mt-3 text-sm text-slate-300">
-                    The SDK clears its cached token in <code>setAgentContext</code>, so the next authenticated call uses your new version context.
+                    Give the bot one name, one version, and one secret. That trio is the identity you will keep reusing while you improve the strategy.
                 </p>
             </section>
 
             <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">5. Next Step</h2>
+                <h2 class="text-xl sm:text-2xl font-semibold">Version on purpose</h2>
                 <p class="mt-3 text-slate-200">
-                    Continue to <a class="text-blue-300 hover:text-blue-200" href="/docs/gameplay-loop">Gameplay Loop</a> and wire all gameplay prompts end-to-end.
+                    Keep the version tied to behavior. If the strategy changes, bump the version. If the version changes, the agent should still be reproducible.
+                </p>
+            </section>
+
+            <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
+                <h2 class="text-xl sm:text-2xl font-semibold">Keep secrets out of code</h2>
+                <p class="mt-3 text-slate-200">
+                    The abstract bot class expects a secret and host at registration time. Read them from environment variables or your secret store.
+                </p>
+            </section>
+
+            <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
+                <h2 class="text-xl sm:text-2xl font-semibold">The useful mental model</h2>
+                <p class="mt-3 text-slate-200">
+                    The runtime bot is not a loose websocket client. It is a subclass that owns strategy, while the SDK handles queueing, prompt delivery, and match shutdown.
+                </p>
+            </section>
+
+            <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
+                <h2 class="text-xl sm:text-2xl font-semibold">Next step</h2>
+                <p class="mt-3 text-slate-200">
+                    Continue to <a class="text-blue-300 hover:text-blue-200" href="/docs/gameplay-loop">Gameplay Loop</a> to see how the three strategy methods map to a real match.
                 </p>
             </section>
         </DocsPageLayout>

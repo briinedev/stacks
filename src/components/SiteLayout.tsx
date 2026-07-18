@@ -3,7 +3,6 @@ import { ComponentChildren } from 'preact';
 import { useContext } from 'preact/hooks';
 
 import UserProvider, { UserContext } from './contexts/UserContext';
-
 import { editorialBrand } from '../content/chronicles';
 
 type SiteLayoutProps = {

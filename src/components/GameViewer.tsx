@@ -153,7 +153,7 @@ export default function GameViewer({ matchId }: { matchId: string }) {
 
                 for (const effect of action.effects || []) {
                     if (effect.kind === 'hp' && effect.target === charEmu.id && typeof effect.amount === 'number') {
-                        charEmu.hp -= effect.amount;
+                        charEmu.applyHpChange(effect.amount);
                     }
                 }
             }

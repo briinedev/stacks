@@ -1,5 +1,4 @@
 import { editorialBrand, getCategoryMeta, getChroniclePost } from '../content/chronicles';
-
 import styles from './ChroniclePost.module.css';
 
 export default function ChroniclePost({ slug }: { slug: string }) {

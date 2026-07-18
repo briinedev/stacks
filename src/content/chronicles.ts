@@ -23,32 +23,17 @@ type ChronicleMdxModule = {
 };
 
 export const editorialBrand = {
-    title: 'Briine Chronicles',
-    shortLabel: 'Chronicles',
-    alternateTitles: ['Arena Feed'],
-    description: 'Match stories, balance notes, meta snapshots, and behind-the-scenes development updates.',
+    title: 'Launch Notes',
+    shortLabel: 'Launch',
+    alternateTitles: ['Briine Launch Notes'],
+    description: 'The initial public post for Briine and the place for future platform launch notes.',
 };
 
 export const chronicleCategories: Array<{ id: ChronicleCategoryId; label: string; description: string }> = [
     {
-        id: 'match-highlights',
-        label: 'Match Highlights',
-        description: 'Narrative recaps of standout games, turning points, and decisive sequences.',
-    },
-    {
-        id: 'game-updates',
-        label: 'Game Updates / Patch Notes',
-        description: 'Rules changes, content additions, balance shifts, and release notes.',
-    },
-    {
-        id: 'meta-reports',
-        label: 'Meta Reports',
-        description: 'Snapshots of what is working on ladder and where the field is trending.',
-    },
-    {
         id: 'dev-logs',
-        label: 'Dev Logs',
-        description: 'Notes about infrastructure, design direction, and ongoing work in the arena.',
+        label: 'Launch Notes',
+        description: 'The first public post and future launch-level platform updates.',
     },
 ];
 

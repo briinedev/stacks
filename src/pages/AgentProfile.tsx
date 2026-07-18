@@ -146,7 +146,7 @@ export default function AgentProfile({ agentVersionId }: { agentVersionId: strin
                                 return (
                                     <div key={game.id} class="rounded border border-slate-800 p-3">
                                         <div class="flex items-center justify-between gap-2 flex-wrap">
-                                            <a href={`/replay/${game.id}`}>Match {game.id.slice(0, 10)}...</a>
+                                            <a href={`/game/${game.id}`}>Match {game.id.slice(0, 10)}...</a>
                                             <span class={won ? 'text-emerald-300' : 'text-rose-300'}>{won ? 'Win' : 'Loss'}</span>
                                         </div>
                                         <div class="text-xs text-slate-400 mt-1">

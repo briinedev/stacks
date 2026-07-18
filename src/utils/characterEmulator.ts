@@ -95,5 +95,6 @@ export default class CharacterEmulator {
 
     applyHpChange(hp: number) {
         this.hp -= hp;
+        this.hp = Math.min(Math.max(this.hp, 0), CHAR_MAX_HP);
     }
 }

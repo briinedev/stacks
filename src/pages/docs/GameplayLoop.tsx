@@ -3,24 +3,24 @@ import DocsPageLayout from '../../components/docs/DocsPageLayout';
 export default function GameplayLoop() {
     return (
         <DocsPageLayout
-            title="Implement The Gameplay Loop"
-            summary="Handle queue and in-game prompts in order so your agent can finish full matches without manual intervention."
+      title="Gameplay Loop"
+      summary="The SDK handles the queue and websocket plumbing. Your bot only needs to answer the three strategy prompts well."
         >
             <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">Prompt Order You Must Handle</h2>
+        <h2 class="text-xl sm:text-2xl font-semibold">Prompt order</h2>
                 <ol class="mt-3 list-decimal pl-5 space-y-2 text-slate-200">
-                <li><code>onQueuePop</code> calls <code>joinMatch(matchId)</code></li>
-                    <li><code>onCharacterPrompt</code> → call <code>pickCharacter(matchId, characterId)</code></li>
-                    <li><code>onSpellsPrompt</code> → call <code>setSpellPool(matchId, spellPool)</code></li>
-                    <li><code>onActionPrompt</code> → call <code>doAction(matchId, action)</code></li>
-                <li><code>onMatchOver</code> logs the outcome and continues queueing</li>
+          <li>The SDK queues the agent and waits for a match.</li>
+          <li><code>chooseCharacter</code> is called during draft.</li>
+          <li><code>chooseSpells</code> is called when the shared spell pool is selected.</li>
+          <li><code>chooseAction</code> is called during the live match.</li>
+          <li>When the match ends, the SDK reports the result and either stays queued or stops.</li>
                 </ol>
             </section>
 
             <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">First Working Agent Example</h2>
+        <h2 class="text-xl sm:text-2xl font-semibold">A safe first bot</h2>
                 <p class="mt-3 text-slate-200">
-                    This baseline policy is intentionally simple: first legal choice for picks/spells and a deterministic action fallback.
+          Start with the simplest thing that can finish a match. A boring bot is easier to debug than a clever one.
                 </p>
                 <pre class="mt-4 overflow-x-auto rounded-md border border-slate-700 bg-slate-950 p-4 text-sm text-slate-100"><code>{`import { AgentConnection, Ally, Character, Spell } from 'YOUR_SDK_IMPORT';
 
@@ -66,34 +66,8 @@ function chooseAction(ally: Ally[], enemy: Character[]) {
 }
 
 async function run() {
-  const connection = new AgentConnection('localhost:8787', 'your-username', 'starter-agent', '0.1.0');
+  const connection = new AgentConnection('localhost:8787', 'your-username', 'starter-agent', '0.1.0', 'your-secret');
   await connection.connect();
-
-  connection.onQueuePop((matchId) => {
-    connection.joinMatch(matchId);
-  });
-
-  connection.onCharacterPrompt((matchId, availableCharacters) => {
-    const selected = availableCharacters[0];
-    if (selected) connection.pickCharacter(matchId, selected.id);
-  });
-
-  connection.onSpellsPrompt((matchId, availableSpells) => {
-    connection.setSpellPool(matchId, chooseSpellPool(availableSpells));
-  });
-
-  connection.onActionPrompt((matchId, status) => {
-    const action = chooseAction(status.ally, status.enemy);
-    if (action) connection.doAction(matchId, action);
-  });
-
-  connection.onMatchOver((matchId) => {
-    console.log('match finished', matchId);
-  });
-
-  connection.onError((error) => {
-    console.error('sdk/server error', error);
-  });
 
   connection.joinQueue();
 }
@@ -102,9 +76,9 @@ run().catch(console.error);`}</code></pre>
             </section>
 
             <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">Action Shape</h2>
+              <h2 class="text-xl sm:text-2xl font-semibold">Action shape</h2>
                 <p class="mt-3 text-slate-200">
-                    The runtime expects an action payload with this structure:
+                    When you return a rich action from the abstract bot class, the SDK converts it into this payload before it hits the server:
                 </p>
                 <pre class="mt-4 overflow-x-auto rounded-md border border-slate-700 bg-slate-950 p-4 text-sm text-slate-100"><code>{`type ActionRequest = {
   id: string;
@@ -113,14 +87,14 @@ run().catch(console.error);`}</code></pre>
   target?: string[];
 };`}</code></pre>
                 <p class="mt-3 text-sm text-slate-300">
-                    In current game logic, <code>type</code> values handled explicitly are <code>attack</code>, <code>spell</code>, and <code>defend</code>.
+                    In the current engine, only <code>attack</code>, <code>spell</code>, and <code>defend</code> are handled explicitly.
                 </p>
             </section>
 
             <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">Next Step</h2>
+                <h2 class="text-xl sm:text-2xl font-semibold">Next step</h2>
                 <p class="mt-3 text-slate-200">
-                    Use <a class="text-blue-300 hover:text-blue-200" href="/docs/sdk-reference">SDK Reference</a> as your checklist while hardening reconnects, status requests, and telemetry.
+                    Use <a class="text-blue-300 hover:text-blue-200" href="/docs/sdk-reference">SDK Reference</a> when you need exact method names and the abstract base class signature.
                 </p>
             </section>
         </DocsPageLayout>

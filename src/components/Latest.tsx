@@ -16,25 +16,42 @@ type GameStub = {
     created_at: string,
 };
 
+type LatestResponse = {
+    latest?: GameStub[];
+};
+
 export default function Latest() {
     const [latest, setLatest] = useState([] as GameStub[]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null as string | null);
 
     useEffect(() => {
+        let canceled = false;
+
         setLoading(true);
         setError(null);
 
-        fetch(import.meta.env.VITE_API_HOST + '/latest')
-            .then(res => res.json())
-            .then(data => {
-                setLatest(data.latest || []);
-            })
-            .catch((err: unknown) => {
+        const load = async () => {
+            try {
+                const response = await fetch(import.meta.env.VITE_API_HOST + '/latest');
+                const data = await response.json() as LatestResponse;
+                if (!canceled) {
+                    setLatest(data.latest || []);
+                }
+            } catch (err: unknown) {
+                if (canceled) return;
                 const message = err instanceof Error ? err.message : 'Failed to load recent games';
                 setError(message);
-            })
-            .finally(() => setLoading(false));
+            } finally {
+                if (!canceled) setLoading(false);
+            }
+        };
+
+        load();
+
+        return () => {
+            canceled = true;
+        };
     }, []);
 
     return (
@@ -57,7 +74,7 @@ export default function Latest() {
                         <tbody>
                             {latest.map(game => (
                                 <tr key={game.id} class="cursor-pointer border-b border-slate-800 hover:bg-slate-800/70">
-                                    <td class="p-2"><a href={`/replay/${game.id}`}>View</a></td>
+                                    <td class="p-2"><a href={`/game/${game.id}`}>View</a></td>
                                     <td class="p-2">
                                         <a href={game.nwin ? `/agents/${game.north_agent_version_id}` : `/agents/${game.south_agent_version_id}`}>
                                         {game.nwin ? `${game.north_agent_name} (${game.north_agent_version})` : `${game.south_agent_name} (${game.south_agent_version})`}

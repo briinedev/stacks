@@ -118,6 +118,10 @@ export default function GameViewer({ matchId }: { matchId: string }) {
         return actionIndex <= currentAction;
     }, [currentTurn, currentAction]);
 
+    const hasLoggedStaminaEffects = useMemo(() => {
+        return turns.some(turn => turn.actions.some(action => (action.effects || []).some(effect => effect.kind === 'stamina')));
+    }, [turns]);
+
     const getActionStaminaCost = useCallback((char: Character, side: 'north' | 'south', actionId: string, actionType: 'spell' | 'attack' | 'defend') => {
         if (actionType === 'defend') return 0;
 
@@ -131,12 +135,16 @@ export default function GameViewer({ matchId }: { matchId: string }) {
 
     const emulateCharacter = useCallback(function(char: Character, side: 'north' | 'south') {
         const charEmu = new CharacterEmulator(char);
+        const useLegacyStaminaTracking = !hasLoggedStaminaEffects;
 
         for (let ti = 0; ti < turns.length; ti++) {
             if (ti > currentTurn) break;
             const turn = turns[ti];
 
-            if (turn.active === (side === 'north' ? 'south' : 'north') && ti !== 0) charEmu.regainStamina();
+            if (useLegacyStaminaTracking && turn.active === (side === 'north' ? 'south' : 'north') && ti !== 0) {
+                charEmu.regainStamina();
+            }
+
             if (turn.active === side) {
                 charEmu.defended = false;
             }
@@ -146,21 +154,29 @@ export default function GameViewer({ matchId }: { matchId: string }) {
                 const action = turn.actions[ai];
                 if (action.id === 'defend' && action.source === charEmu.id) charEmu.defended = true;
 
-                if (action.source === charEmu.id && action.type !== 'defend') {
+                if (useLegacyStaminaTracking && action.source === charEmu.id && action.type !== 'defend') {
                     charEmu.useStamina(getActionStaminaCost(char, side, action.id, action.type));
                 }
-                if (turn.active !== side && ti !== 0 && action.type !== 'defend') charEmu.regainStamina();
+
+                if (useLegacyStaminaTracking && turn.active !== side && ti !== 0 && action.type !== 'defend') {
+                    charEmu.regainStamina();
+                }
 
                 for (const effect of action.effects || []) {
                     if (effect.kind === 'hp' && effect.target === charEmu.id && typeof effect.amount === 'number') {
                         charEmu.applyHpChange(effect.amount);
+                    }
+
+                    if (effect.kind === 'stamina' && effect.target === charEmu.id && typeof effect.amount === 'number' && effect.op) {
+                        const delta = effect.op === 'g' ? effect.amount : -effect.amount;
+                        charEmu.applyStaminaChange(delta);
                     }
                 }
             }
         }
 
         return charEmu;
-    }, [currentTurn, getActionStaminaCost, shouldIncludeAction, turns]);
+    }, [currentTurn, getActionStaminaCost, hasLoggedStaminaEffects, shouldIncludeAction, turns]);
 
     const [selChar, setSelChar] = useState(game ? emulateCharacter(game?.north_characters[0], 'north') : undefined);
 
@@ -363,7 +379,7 @@ export default function GameViewer({ matchId }: { matchId: string }) {
             return joined;
         }
 
-        function renderEffectSummary(effect: NonNullable<Turn['actions'][number]['effects']>[number], key: string) {
+        function renderEffectSummary(effect: NonNullable<Turn['actions'][number]['effects']>[number], key: string, actionSource?: string) {
             if (effect.kind === 'hp' && effect.target && typeof effect.amount === 'number') {
                 const target = getCharacterByToken(effect.target);
                 if (!target) return null;
@@ -378,6 +394,15 @@ export default function GameViewer({ matchId }: { matchId: string }) {
                         <span>{`${effect.op === 'g' ? '+' : '-'}${effect.amount}`}</span>
                     </span>
                 );
+            }
+
+            if (effect.kind === 'stamina' && effect.target && typeof effect.amount === 'number' && effect.op) {
+                const target = getCharacterByToken(effect.target);
+                const label = actionSource && effect.target === actionSource
+                    ? 'STA'
+                    : `${target?.name ?? 'Unknown'} STA`;
+
+                return <span key={key}>{label} {effect.op === 'g' ? '+' : '-'}{effect.amount}</span>;
             }
 
             if (effect.kind === 'effect' && effect.op && effect.target && effect.effectId) {
@@ -419,7 +444,7 @@ export default function GameViewer({ matchId }: { matchId: string }) {
                 }
 
                 const effectNodes = (action.effects || [])
-                    .map((effect, index) => renderEffectSummary(effect, `effect-${i}-${ai}-${index}`))
+                    .map((effect, index) => renderEffectSummary(effect, `effect-${i}-${ai}-${index}`, action.source))
                     .filter((node) => node !== null);
 
                 ugl.push(

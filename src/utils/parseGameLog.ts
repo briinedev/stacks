@@ -1,7 +1,7 @@
 import { Character } from './characterEmulator';
 
 export type Effect = {
-    kind: 'hp' | 'stack' | 'effect',
+    kind: 'hp' | 'stack' | 'stamina' | 'effect',
     target?: string,
     amount?: number,
     source?: string,
@@ -101,6 +101,15 @@ export default function parseGameLog(log: string, southCharacterIds: Character[]
                         kind: 'stack',
                         op: op as 'g' | 's',
                         element,
+                        amount: parseInt(amount),
+                        source: sourceNum ? btoa(sourceNum) : undefined,
+                    });
+                } else if (/^m:[gs]:[1-6]:[0-9]+(?::[1-6])?$/.test(entry)) {
+                    const [, op, targetNum, amount, sourceNum] = entry.split(':');
+                    lastAction.effects!.push({
+                        kind: 'stamina',
+                        op: op as 'g' | 's',
+                        target: btoa(targetNum),
                         amount: parseInt(amount),
                         source: sourceNum ? btoa(sourceNum) : undefined,
                     });

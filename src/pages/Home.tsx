@@ -221,12 +221,12 @@ export default function Home() {
                 <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
                     <h3 class="text-2xl sm:text-4xl block break-words">{editorialBrand.title}</h3>
                     <a href="/chronicles" class="inline-flex items-center text-sky-300 hover:text-sky-200">
-                        Read launch post <IconArrowRight class="inline-block ml-1" />
+                        Read All <IconArrowRight class="inline-block ml-1" />
                     </a>
                 </div>
 
                 <p class="text-slate-300 max-w-3xl">
-                    The site launches with one editorial post that explains what Briine is and where the platform goes next.
+                    {editorialBrand.description}
                 </p>
 
                 {launchPost && (
@@ -237,7 +237,7 @@ export default function Home() {
                             <p class="mt-3 text-slate-300 text-sm sm:text-base">{launchPost.summary}</p>
                             <div class="mt-4 text-xs text-slate-400">{launchPost.publishedAt} • {launchPost.readMinutes} min read</div>
                             <a href={`/chronicles/${launchPost.slug}`} class="mt-4 inline-flex text-sky-300 hover:text-sky-200">
-                                Read launch post →
+                                Read Post →
                             </a>
                         </article>
                     </div>

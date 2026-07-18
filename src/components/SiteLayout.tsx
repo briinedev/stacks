@@ -38,7 +38,7 @@ export default function SiteLayout({ children }: SiteLayoutProps) {
                         </a>
                         <nav class="flex flex-wrap gap-2 sm:gap-3 text-sm sm:text-base">
                             <a href="/leaderboard" class="px-3 py-2 rounded hover:bg-slate-800">Leaderboard</a>
-                            <a href="/docs" class="px-3 py-2 rounded hover:bg-slate-800">Docs</a>
+                            <a href="https://www.npmjs.com/package/@briine/sdk" target="_blank" class="px-3 py-2 rounded hover:bg-slate-800">SDK</a>
                             <a href="/data" class="px-3 py-2 rounded hover:bg-slate-800">Data</a>
                             <a href="/rules" class="px-3 py-2 rounded hover:bg-slate-800">Rules</a>
                             <a href="/chronicles" class="px-3 py-2 rounded hover:bg-slate-800">{editorialBrand.shortLabel}</a>

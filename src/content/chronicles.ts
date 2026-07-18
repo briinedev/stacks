@@ -23,17 +23,17 @@ type ChronicleMdxModule = {
 };
 
 export const editorialBrand = {
-    title: 'Launch Notes',
-    shortLabel: 'Launch',
-    alternateTitles: ['Briine Launch Notes'],
-    description: 'The initial public post for Briine and the place for future platform launch notes.',
+    title: 'Chronicles',
+    shortLabel: 'Chronicles',
+    alternateTitles: ['Briine Chronicles'],
+    description: 'The public log of all significant events and updates related to Briine.',
 };
 
 export const chronicleCategories: Array<{ id: ChronicleCategoryId; label: string; description: string }> = [
     {
         id: 'dev-logs',
-        label: 'Launch Notes',
-        description: 'The first public post and future launch-level platform updates.',
+        label: 'Development Logs',
+        description: 'Posts detailing the development progress and updates of the Briine platform.',
     },
 ];
 

@@ -93,6 +93,10 @@ export default class CharacterEmulator {
         this.stamina = Math.min(this.stamina + 1, this.maxStamina);
     }
 
+    applyStaminaChange(amount: number) {
+        this.stamina = Math.min(Math.max(this.stamina + amount, 0), this.maxStamina);
+    }
+
     applyHpChange(hp: number) {
         this.hp -= hp;
         this.hp = Math.min(Math.max(this.hp, 0), CHAR_MAX_HP);

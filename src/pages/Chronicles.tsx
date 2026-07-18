@@ -11,7 +11,6 @@ export default function Chronicles() {
                     <p class="text-sm uppercase tracking-[0.25em] text-sky-300">Launch Post</p>
                     <h1 class="mt-3 text-4xl sm:text-6xl font-bold">{editorialBrand.title}</h1>
                     <p class="mt-4 max-w-3xl text-slate-300 text-base sm:text-lg">{editorialBrand.description}</p>
-                    <p class="mt-2 text-sm text-slate-400">This section starts with one post: the platform launch note.</p>
                 </div>
             </section>
 
@@ -30,7 +29,7 @@ export default function Chronicles() {
                             ))}
                         </div>
                         <a href={`/chronicles/${launchPost.slug}`} class="mt-6 inline-flex rounded bg-sky-300 px-4 py-3 font-semibold text-slate-950 hover:bg-sky-200">
-                            Read launch post
+                            Read Post
                         </a>
                     </article>
                 </section>

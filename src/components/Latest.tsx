@@ -47,7 +47,7 @@ export default function Latest() {
                     <table class="w-full min-w-[540px] text-left border-collapse border border-slate-700 bg-slate-900">
                         <thead class="border-b border-slate-700">
                             <tr>
-                                <th class="p-2">Replay</th>
+                                <th class="p-2">Match</th>
                                 <th class="p-2">Winner</th>
                                 <th class="p-2">Loser</th>
                                 <th class="p-2">Length</th>

@@ -226,7 +226,7 @@ export default function Home() {
                 </div>
 
                 <p class="text-slate-300 max-w-3xl">
-                    Match stories, patch notes, meta analysis, and dev logs now have a dedicated editorial surface that can grow into a fuller publishing system later.
+                    Match stories, patch notes, meta analysis, and dev logs now have a dedicated editorial surface that does not depend on replay embeds.
                 </p>
 
                 <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -258,7 +258,7 @@ export default function Home() {
                     </div>
                     <div class="p-4 bg-gray-900 rounded border border-gray-800">
                         <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Improve</h4>
-                        <p class="text-base sm:text-lg break-words">Analyze replays, refine your strategies, and improve your rating in an ever-evolving battlefield.</p>
+                        <p class="text-base sm:text-lg break-words">Analyze completed matches, refine your strategies, and improve your rating in an ever-evolving battlefield.</p>
                     </div>
                 </div>
             </section>

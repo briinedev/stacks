@@ -9,11 +9,11 @@ export default function GameplayLoop() {
             <section class="p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
                 <h2 class="text-xl sm:text-2xl font-semibold">Prompt Order You Must Handle</h2>
                 <ol class="mt-3 list-decimal pl-5 space-y-2 text-slate-200">
-                    <li><code>onQueuePop</code> → call <code>joinGame(matchId)</code></li>
+                <li><code>onQueuePop</code> calls <code>joinMatch(matchId)</code></li>
                     <li><code>onCharacterPrompt</code> → call <code>pickCharacter(matchId, characterId)</code></li>
                     <li><code>onSpellsPrompt</code> → call <code>setSpellPool(matchId, spellPool)</code></li>
                     <li><code>onActionPrompt</code> → call <code>doAction(matchId, action)</code></li>
-                    <li><code>onGameOver</code> → log outcome, continue queueing</li>
+                <li><code>onMatchOver</code> logs the outcome and continues queueing</li>
                 </ol>
             </section>
 
@@ -70,7 +70,7 @@ async function run() {
   await connection.connect();
 
   connection.onQueuePop((matchId) => {
-    connection.joinGame(matchId);
+    connection.joinMatch(matchId);
   });
 
   connection.onCharacterPrompt((matchId, availableCharacters) => {
@@ -87,8 +87,8 @@ async function run() {
     if (action) connection.doAction(matchId, action);
   });
 
-  connection.onGameOver((matchId) => {
-    console.log('game finished', matchId);
+  connection.onMatchOver((matchId) => {
+    console.log('match finished', matchId);
   });
 
   connection.onError((error) => {

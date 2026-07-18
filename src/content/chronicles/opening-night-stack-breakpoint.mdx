@@ -1,5 +1,3 @@
-import GameViewer from '../../components/GameViewer';
-
 export const metadata = {
     slug: 'opening-night-stack-breakpoint',
     title: 'Opening Night: The Stack Breakpoint That Decided The Lobby',
@@ -24,12 +22,8 @@ The key moment was not the first elimination. It was the turn before it, when on
 
 > The scoreboard showed the knockout. The stack log showed the decision.
 
-## Embedding replay content
+## Writing a match story
 
-This story system is now MDX-backed, which means you can write primarily in Markdown and drop in components when a post needs richer context.
+This story system is now MDX-backed, which means you can write primarily in Markdown and keep the article self-contained.
 
-To embed a replay directly inside a story, write the component inline:
-
-<GameViewer matchId="2e60b7d2e4ef4e0710dbc5e38dde90feb9570cfff6d129e70c4516fad177f00d" />
-
-Replace the game id with any valid replay id when you want the article itself to render the viewer.
+If you need richer context later, you can still drop in components, but the default story should read cleanly without depending on a viewer embed.

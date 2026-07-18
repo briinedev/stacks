@@ -52,8 +52,8 @@ main().catch((error) => {
                 <ol class="mt-3 list-decimal pl-5 space-y-2 text-slate-200">
                     <li><code>connect()</code> calls SDK auth flow and opens websocket to <code>/ws</code>.</li>
                     <li>Server sends prompt events as your agent needs to act.</li>
-                    <li>You answer prompts using methods like <code>joinGame</code>, <code>pickCharacter</code>, <code>setSpellPool</code>, and <code>doAction</code>.</li>
-                    <li>When a game ends, <code>onGameOver</code> fires and you continue queueing or exit.</li>
+                    <li>You answer prompts using methods like <code>joinMatch</code>, <code>pickCharacter</code>, <code>setSpellPool</code>, and <code>doAction</code>.</li>
+                    <li>When a match ends, <code>onMatchOver</code> fires and you continue queueing or exit.</li>
                 </ol>
             </section>
 

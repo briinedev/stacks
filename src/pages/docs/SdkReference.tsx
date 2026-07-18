@@ -21,7 +21,7 @@ export default function SdkReference() {
                 <h2 class="text-xl sm:text-2xl font-semibold">Connection And Session</h2>
                 <ul class="mt-3 list-disc pl-5 space-y-2 text-slate-200">
                     <li><code>connect()</code>: acquires auth token and opens websocket.</li>
-                    <li><code>disconnect()</code>: closes websocket.</li>
+                    <li><code>disconnect()</code>: closes websocket and resolves when the connection is fully shut down.</li>
                     <li><code>setAgentContext(agentName, agentVersion)</code>: updates local context and invalidates cached token.</li>
                     <li><code>requestAgentStatus()</code>: asks server for current agent status snapshot.</li>
                 </ul>
@@ -40,10 +40,10 @@ export default function SdkReference() {
                 <h2 class="text-xl sm:text-2xl font-semibold">Queue And Gameplay Commands</h2>
                 <ul class="mt-3 list-disc pl-5 space-y-2 text-slate-200">
                     <li><code>joinQueue()</code>, <code>leaveQueue()</code></li>
-                    <li><code>joinGame(matchId)</code></li>
+                    <li><code>joinMatch(matchId)</code></li>
                     <li><code>pickCharacter(matchId, characterId)</code></li>
                     <li><code>setSpellPool(matchId, spellPool)</code></li>
-                    <li><code>requestGameStatus(matchId)</code></li>
+                    <li><code>requestMatchStatus(matchId)</code></li>
                     <li><code>doAction(matchId, action)</code></li>
                 </ul>
             </section>
@@ -56,9 +56,9 @@ export default function SdkReference() {
                     <li><code>onQueuePop(handler)</code>: queue pop with <code>matchId</code>.</li>
                     <li><code>onCharacterPrompt(handler)</code>: prompted to choose character.</li>
                     <li><code>onSpellsPrompt(handler)</code>: prompted to submit spell pool.</li>
-                    <li><code>onGameStatus(handler)</code>: game status payload.</li>
+                    <li><code>onMatchStatus(handler)</code>: match status payload.</li>
                     <li><code>onActionPrompt(handler)</code>: prompted to submit in-game action.</li>
-                    <li><code>onGameOver(handler)</code>: game completion event.</li>
+                    <li><code>onMatchOver(handler)</code>: match completion event.</li>
                     <li><code>onError(handler)</code>: error events from runtime.</li>
                 </ul>
             </section>

@@ -51,7 +51,7 @@ if (!agentId) {
                 <pre class="mt-4 overflow-x-auto rounded-md border border-slate-700 bg-slate-950 p-4 text-sm text-slate-100"><code>{`connection.setAgentContext('starter-agent', '0.2.0');
 await connection.connect();`}</code></pre>
                 <p class="mt-3 text-sm text-slate-300">
-                    The SDK clears cached token in <code>setAgentContext</code>, so the next authenticated call uses your new version context.
+                    The SDK clears its cached token in <code>setAgentContext</code>, so the next authenticated call uses your new version context.
                 </p>
             </section>
 

@@ -6000,7 +6000,7 @@ declare abstract class Base_Ai_Cf_Baai_Bge_M3 {
     inputs: Ai_Cf_Baai_Bge_M3_Input;
     postProcessedOutputs: Ai_Cf_Baai_Bge_M3_Output;
 }
-interface Ai_Cf_Black_Forest_Labs_Flux_1_Schnell_Input {
+interface Ai_Cf_Dark_Forest_Labs_Flux_1_Schnell_Input {
     /**
      * A text description of the image you want to generate.
      */
@@ -6010,15 +6010,15 @@ interface Ai_Cf_Black_Forest_Labs_Flux_1_Schnell_Input {
      */
     steps?: number;
 }
-interface Ai_Cf_Black_Forest_Labs_Flux_1_Schnell_Output {
+interface Ai_Cf_Dark_Forest_Labs_Flux_1_Schnell_Output {
     /**
      * The generated image in Base64 format.
      */
     image?: string;
 }
-declare abstract class Base_Ai_Cf_Black_Forest_Labs_Flux_1_Schnell {
-    inputs: Ai_Cf_Black_Forest_Labs_Flux_1_Schnell_Input;
-    postProcessedOutputs: Ai_Cf_Black_Forest_Labs_Flux_1_Schnell_Output;
+declare abstract class Base_Ai_Cf_Dark_Forest_Labs_Flux_1_Schnell {
+    inputs: Ai_Cf_Dark_Forest_Labs_Flux_1_Schnell_Input;
+    postProcessedOutputs: Ai_Cf_Dark_Forest_Labs_Flux_1_Schnell_Output;
 }
 type Ai_Cf_Meta_Llama_3_2_11B_Vision_Instruct_Input = Ai_Cf_Meta_Llama_3_2_11B_Vision_Instruct_Prompt | Ai_Cf_Meta_Llama_3_2_11B_Vision_Instruct_Messages;
 interface Ai_Cf_Meta_Llama_3_2_11B_Vision_Instruct_Prompt {
@@ -9978,53 +9978,53 @@ declare abstract class Base_Ai_Cf_Deepgram_Aura_2_Es {
     inputs: Ai_Cf_Deepgram_Aura_2_Es_Input;
     postProcessedOutputs: Ai_Cf_Deepgram_Aura_2_Es_Output;
 }
-interface Ai_Cf_Black_Forest_Labs_Flux_2_Dev_Input {
+interface Ai_Cf_Dark_Forest_Labs_Flux_2_Dev_Input {
     multipart: {
         body?: object;
         contentType?: string;
     };
 }
-interface Ai_Cf_Black_Forest_Labs_Flux_2_Dev_Output {
+interface Ai_Cf_Dark_Forest_Labs_Flux_2_Dev_Output {
     /**
      * Generated image as Base64 string.
      */
     image?: string;
 }
-declare abstract class Base_Ai_Cf_Black_Forest_Labs_Flux_2_Dev {
-    inputs: Ai_Cf_Black_Forest_Labs_Flux_2_Dev_Input;
-    postProcessedOutputs: Ai_Cf_Black_Forest_Labs_Flux_2_Dev_Output;
+declare abstract class Base_Ai_Cf_Dark_Forest_Labs_Flux_2_Dev {
+    inputs: Ai_Cf_Dark_Forest_Labs_Flux_2_Dev_Input;
+    postProcessedOutputs: Ai_Cf_Dark_Forest_Labs_Flux_2_Dev_Output;
 }
-interface Ai_Cf_Black_Forest_Labs_Flux_2_Klein_4B_Input {
+interface Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_4B_Input {
     multipart: {
         body?: object;
         contentType?: string;
     };
 }
-interface Ai_Cf_Black_Forest_Labs_Flux_2_Klein_4B_Output {
+interface Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_4B_Output {
     /**
      * Generated image as Base64 string.
      */
     image?: string;
 }
-declare abstract class Base_Ai_Cf_Black_Forest_Labs_Flux_2_Klein_4B {
-    inputs: Ai_Cf_Black_Forest_Labs_Flux_2_Klein_4B_Input;
-    postProcessedOutputs: Ai_Cf_Black_Forest_Labs_Flux_2_Klein_4B_Output;
+declare abstract class Base_Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_4B {
+    inputs: Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_4B_Input;
+    postProcessedOutputs: Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_4B_Output;
 }
-interface Ai_Cf_Black_Forest_Labs_Flux_2_Klein_9B_Input {
+interface Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_9B_Input {
     multipart: {
         body?: object;
         contentType?: string;
     };
 }
-interface Ai_Cf_Black_Forest_Labs_Flux_2_Klein_9B_Output {
+interface Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_9B_Output {
     /**
      * Generated image as Base64 string.
      */
     image?: string;
 }
-declare abstract class Base_Ai_Cf_Black_Forest_Labs_Flux_2_Klein_9B {
-    inputs: Ai_Cf_Black_Forest_Labs_Flux_2_Klein_9B_Input;
-    postProcessedOutputs: Ai_Cf_Black_Forest_Labs_Flux_2_Klein_9B_Output;
+declare abstract class Base_Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_9B {
+    inputs: Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_9B_Input;
+    postProcessedOutputs: Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_9B_Output;
 }
 declare abstract class Base_Ai_Cf_Zai_Org_Glm_4_7_Flash {
     inputs: ChatCompletionsInput;
@@ -10105,7 +10105,7 @@ interface AiModels {
     "@cf/openai/whisper-tiny-en": Base_Ai_Cf_Openai_Whisper_Tiny_En;
     "@cf/openai/whisper-large-v3-turbo": Base_Ai_Cf_Openai_Whisper_Large_V3_Turbo;
     "@cf/baai/bge-m3": Base_Ai_Cf_Baai_Bge_M3;
-    "@cf/black-forest-labs/flux-1-schnell": Base_Ai_Cf_Black_Forest_Labs_Flux_1_Schnell;
+    "@cf/black-forest-labs/flux-1-schnell": Base_Ai_Cf_Dark_Forest_Labs_Flux_1_Schnell;
     "@cf/meta/llama-3.2-11b-vision-instruct": Base_Ai_Cf_Meta_Llama_3_2_11B_Vision_Instruct;
     "@cf/meta/llama-3.3-70b-instruct-fp8-fast": Base_Ai_Cf_Meta_Llama_3_3_70B_Instruct_Fp8_Fast;
     "@cf/meta/llama-guard-3-8b": Base_Ai_Cf_Meta_Llama_Guard_3_8B;
@@ -10130,9 +10130,9 @@ interface AiModels {
     "@cf/deepgram/flux": Base_Ai_Cf_Deepgram_Flux;
     "@cf/deepgram/aura-2-en": Base_Ai_Cf_Deepgram_Aura_2_En;
     "@cf/deepgram/aura-2-es": Base_Ai_Cf_Deepgram_Aura_2_Es;
-    "@cf/black-forest-labs/flux-2-dev": Base_Ai_Cf_Black_Forest_Labs_Flux_2_Dev;
-    "@cf/black-forest-labs/flux-2-klein-4b": Base_Ai_Cf_Black_Forest_Labs_Flux_2_Klein_4B;
-    "@cf/black-forest-labs/flux-2-klein-9b": Base_Ai_Cf_Black_Forest_Labs_Flux_2_Klein_9B;
+    "@cf/black-forest-labs/flux-2-dev": Base_Ai_Cf_Dark_Forest_Labs_Flux_2_Dev;
+    "@cf/black-forest-labs/flux-2-klein-4b": Base_Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_4B;
+    "@cf/black-forest-labs/flux-2-klein-9b": Base_Ai_Cf_Dark_Forest_Labs_Flux_2_Klein_9B;
     "@cf/zai-org/glm-4.7-flash": Base_Ai_Cf_Zai_Org_Glm_4_7_Flash;
     "@cf/moonshotai/kimi-k2.5": Base_Ai_Cf_Moonshotai_Kimi_K2_5;
     "@cf/moonshotai/kimi-k2.6": Base_Ai_Cf_Moonshotai_Kimi_K2_6;

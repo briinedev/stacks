@@ -3,25 +3,9 @@ import type { ComponentChildren } from 'preact';
 import parseGameLog, { Turn } from '../utils/parseGameLog';
 
 import CharacterStatus from './viewer/CharacterStatus';
-import CharacterEmulator, { Character, Attack, Spell, CHAR_MAX_HP, getClassMeta } from '../utils/characterEmulator';
+import CharacterEmulator, { Character, Attack, Spell, CHAR_MAX_HP } from '../utils/characterEmulator';
 import { IconArrowNarrowLeft, IconArrowNarrowRight, IconPlayerPause, IconPlayerPlay, IconPlayerSkipForward, IconRefresh, IconShield, IconSword, IconWand } from '@tabler/icons-preact';
-
-function renderClassIcon(className: string) {
-    const classMeta = getClassMeta(className);
-
-    switch (classMeta.iconKey) {
-        case 'assassin':
-            return <IconSword size={18} class="inline align-text-bottom text-rose-300" title={classMeta.label} />;
-        case 'defender':
-            return <IconShield size={18} class="inline align-text-bottom text-sky-300" title={classMeta.label} />;
-        case 'caster':
-            return <IconWand size={18} class="inline align-text-bottom text-cyan-300" title={classMeta.label} />;
-        case 'controller':
-            return <IconRefresh size={18} class="inline align-text-bottom text-amber-300" title={classMeta.label} />;
-        default:
-            return <IconShield size={18} class="inline align-text-bottom text-slate-300" title={classMeta.label} />;
-    }
-}
+import { ClassIcon, ElementIcon, getElementMeta } from './shared/CombatPresentation';
 
 type Game = {
     id: string,
@@ -89,17 +73,6 @@ const FAST_ACTION_TIMER = 160;
 const SPELL_ACTION_TIMER = 1000;
 const SKIP_TO_SPELL_TIMER = 50;
 
-const ELEMENT_DOT: Record<string, string> = {
-    red: '🔴',
-    blue: '🔵',
-    green: '🟢',
-    yellow: '🟡',
-    white: '⚪',
-    black: '⚫',
-    purple: '🟣',
-    orange: '🟠',
-};
-
 export default function GameViewer({ matchId }: { matchId: string }) {
     const [game, setGame] = useState(undefined as Game | undefined);
     const [turns, setTurns] = useState([] as Turn[]);
@@ -120,7 +93,7 @@ export default function GameViewer({ matchId }: { matchId: string }) {
         blue: 0,
         green: 0,
         yellow: 0,
-        white: 0,
+        light: 0,
         black: 0,
         purple: 0,
         orange: 0,
@@ -209,7 +182,7 @@ export default function GameViewer({ matchId }: { matchId: string }) {
             blue: 0,
             green: 0,
             yellow: 0,
-            white: 0,
+            light: 0,
             black: 0,
             purple: 0,
             orange: 0,
@@ -345,6 +318,77 @@ export default function GameViewer({ matchId }: { matchId: string }) {
             return 'Unknown';
         }
 
+        function getActionElement(actionId: string, actionType: 'attack' | 'spell' | 'defend') {
+            if (actionType === 'attack') {
+                return attacks.find((attack) => attack.id === actionId)?.element?.id;
+            }
+
+            if (actionType === 'spell') {
+                return spells.find((spell) => spell.id === actionId)?.element?.id;
+            }
+
+            return undefined;
+        }
+
+        function getElementColorClass(element?: string) {
+            switch (element?.toLowerCase()) {
+                case 'red':
+                    return 'text-red-500';
+                case 'blue':
+                    return 'text-sky-400';
+                case 'green':
+                    return 'text-emerald-400';
+                case 'yellow':
+                    return 'text-amber-300';
+                case 'light':
+                    return 'text-slate-100';
+                case 'dark':
+                case 'black':
+                    return 'text-slate-500';
+                case 'purple':
+                    return 'text-fuchsia-400';
+                case 'orange':
+                    return 'text-orange-400';
+                default:
+                    return 'text-slate-300';
+            }
+        }
+
+        function joinNodes(nodes: ComponentChildren[]) {
+            const joined = [] as ComponentChildren[];
+            for (let index = 0; index < nodes.length; index++) {
+                if (index > 0) joined.push(' ');
+                joined.push(nodes[index]);
+            }
+            return joined;
+        }
+
+        function renderEffectSummary(effect: NonNullable<Turn['actions'][number]['effects']>[number], key: string) {
+            if (effect.kind === 'hp' && effect.target && typeof effect.amount === 'number') {
+                const target = getCharacterByToken(effect.target);
+                if (!target) return null;
+
+                return <span key={key}>{target.name} {effect.amount >= 0 ? `-${effect.amount}` : `+${Math.abs(effect.amount)}`}</span>;
+            }
+
+            if (effect.kind === 'stack' && effect.element && typeof effect.amount === 'number' && effect.op) {
+                return (
+                    <span key={key} class="inline-flex items-center gap-1">
+                        <ElementIcon element={effect.element} size={14} />
+                        <span>{`${effect.op === 'g' ? '+' : '-'}${effect.amount}`}</span>
+                    </span>
+                );
+            }
+
+            if (effect.kind === 'effect' && effect.op && effect.target && effect.effectId) {
+                const target = getCharacterByToken(effect.target);
+                const lifecycleIcon = effect.op === 'g' ? '✨' : '⌛';
+                return <span key={key}>{lifecycleIcon}{target?.name ?? 'Unknown'} {effect.effectId}</span>;
+            }
+
+            return null;
+        }
+
         const ugl = ['Game Start!'] as ComponentChildren[];
         for (let i = 0; i < turns.length; i++) {
             if (i > currentTurn) break;
@@ -358,69 +402,34 @@ export default function GameViewer({ matchId }: { matchId: string }) {
                 if (i === currentTurn && ai > currentAction) break;
                 const action = turn.actions[ai];
                 const source = getCharacterByToken(action.source);
+                const actionElement = getActionElement(action.id, action.type);
+                const actionColorClass = getElementColorClass(actionElement);
                 if (action.id === 'system') {
-                    let systemLog = 'System';
+                    const systemEffects = (action.effects || [])
+                        .map((effect, index) => renderEffectSummary(effect, `system-${i}-${ai}-${index}`))
+                        .filter((node) => node !== null);
 
-                    if (action.effects && action.effects.length > 0) {
-                        systemLog += ' (';
-                        for (let ei = 0; ei < action.effects.length; ei++) {
-                            const effect = action.effects[ei];
-                            if (effect.kind === 'hp' && effect.target && typeof effect.amount === 'number') {
-                                const target = getCharacterByToken(effect.target);
-                                if (target) {
-                                    systemLog += `${target.name} ${effect.amount >= 0 ? `-${effect.amount}` : `+${Math.abs(effect.amount)}`}`;
-                                }
-                            } else if (effect.kind === 'stack' && effect.element && typeof effect.amount === 'number' && effect.op) {
-                                const icon = ELEMENT_DOT[effect.element] ?? '◯';
-                                systemLog += `${icon}${effect.op === 'g' ? '+' : '-'}${effect.amount}`;
-                            } else if (effect.kind === 'effect' && effect.op && effect.target && effect.effectId) {
-                                const target = getCharacterByToken(effect.target);
-                                const lifecycleIcon = effect.op === 'g' ? '✨' : '⌛';
-                                systemLog += `${lifecycleIcon}${target?.name ?? 'Unknown'} ${effect.effectId}`;
-                            }
-
-                            if (ei < action.effects.length - 1) {
-                                systemLog += ' ';
-                            }
-                        }
-                        systemLog += ')';
-                    }
-
-                    ugl.push(systemLog);
+                    ugl.push(
+                        <span>
+                            <span>System</span>
+                            {systemEffects.length ? <span>{' ('}{joinNodes(systemEffects)}{')'}</span> : null}
+                        </span>
+                    );
                     continue;
                 }
 
-                let effectText = '';
-
-                for (let ei = 0; ei < (action.effects?.length ?? 0); ei++) {
-                    const effect = action.effects![ei];
-                    if (effect.kind === 'hp' && effect.target) {
-                        const target = getCharacterByToken(effect.target);
-                        if (target && typeof effect.amount === 'number') {
-                            effectText += `${target.name} ${effect.amount >= 0 ? `-${effect.amount}` : `+${Math.abs(effect.amount)}`}`;
-                        }
-                    } else if (effect.kind === 'stack' && effect.element && typeof effect.amount === 'number' && effect.op) {
-                        const icon = ELEMENT_DOT[effect.element] ?? '◯';
-                        effectText += `${icon}${effect.op === 'g' ? '+' : '-'}${effect.amount}`;
-                    } else if (effect.kind === 'effect' && effect.op && effect.target && effect.effectId) {
-                        const target = getCharacterByToken(effect.target);
-                        const lifecycleIcon = effect.op === 'g' ? '✨' : '⌛';
-                        effectText += `${lifecycleIcon}${target?.name ?? 'Unknown'} ${effect.effectId}`;
-                    }
-
-                    if (ei < action.effects!.length - 1) {
-                        effectText += ' ';
-                    }
-                }
+                const effectNodes = (action.effects || [])
+                    .map((effect, index) => renderEffectSummary(effect, `effect-${i}-${ai}-${index}`))
+                    .filter((node) => node !== null);
 
                 ugl.push(
                     <span>
                         <span class="mr-1">{source?.name ?? 'Unknown'}</span>
-                        {action.type === 'attack' ? <IconSword size={16} class="inline align-text-bottom text-rose-300" /> : null}
-                        {action.type === 'spell' ? <IconWand size={16} class="inline align-text-bottom text-cyan-300" /> : null}
+                        {action.type === 'attack' ? <IconSword size={16} class={`inline align-text-bottom ${actionColorClass}`} /> : null}
+                        {action.type === 'spell' ? <IconWand size={16} class={`inline align-text-bottom ${actionColorClass}`} /> : null}
                         {action.type === 'defend' ? <IconShield size={16} class="inline align-text-bottom text-emerald-300" /> : null}
                         {['spell', 'attack'].includes(action.type) ? <span>{` ${getActionName(action.id)}`}</span> : null}
-                        {effectText ? <span>{` (${effectText})`}</span> : null}
+                        {effectNodes.length ? <span>{' ('}{joinNodes(effectNodes)}{')'}</span> : null}
                     </span>
                 );
 
@@ -600,21 +609,26 @@ export default function GameViewer({ matchId }: { matchId: string }) {
                 <div class="rounded-xl border border-slate-700 bg-slate-900/70 p-3 sm:p-4 lg:col-span-2">
                     <strong class="block mb-3 text-center text-slate-100 tracking-wide">Stack</strong>
                     <div class="space-y-1.5 text-xs sm:text-sm">
-                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-red-500"></span>R</span><span class="font-semibold">{stack.red}</span></div>
-                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-blue-500"></span>B</span><span class="font-semibold">{stack.blue}</span></div>
-                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>G</span><span class="font-semibold">{stack.green}</span></div>
-                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-yellow-400"></span>Y</span><span class="font-semibold">{stack.yellow}</span></div>
-                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-white border border-slate-400"></span>W</span><span class="font-semibold">{stack.white}</span></div>
-                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-black border border-slate-500"></span>K</span><span class="font-semibold">{stack.black}</span></div>
-                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-fuchsia-600"></span>P</span><span class="font-semibold">{stack.purple}</span></div>
-                        <div class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1"><span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-orange-500"></span>O</span><span class="font-semibold">{stack.orange}</span></div>
+                        {(['red', 'blue', 'green', 'yellow', 'light', 'black', 'purple', 'orange'] as const).map((element) => {
+                            const meta = getElementMeta(element);
+
+                            return (
+                                <div key={element} class="flex items-center justify-between rounded-md border border-slate-700/80 bg-slate-950/70 px-2 py-1">
+                                    <span class="inline-flex items-center gap-1.5" title={meta.label}>
+                                        <ElementIcon element={element} size={14} />
+                                        <span>{meta.short}</span>
+                                    </span>
+                                    <span class="font-semibold">{stack[element]}</span>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
                 <div class="rounded-xl border border-slate-700 bg-slate-900/70 p-3 sm:p-4 overflow-auto scrollbar-none lg:col-span-4 text-left flex flex-col">
                     <strong class="block text-slate-100 tracking-wide">Character Info</strong>
                     <div class="mt-2 text-lg font-bold text-slate-100">
-                        {renderClassIcon(selChar?.class ?? '')}
+                        <ClassIcon classType={selChar?.class ?? ''} size={18} />
                         <span class="ml-1">{selChar?.name}</span>
                     </div>
                     <div class="mt-2 text-sm sm:text-base text-slate-300">STA: {selChar?.stamina} / {selChar?.maxStamina}</div>

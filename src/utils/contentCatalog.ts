@@ -9,6 +9,11 @@ export type EndpointEffect = {
     description: string;
 };
 
+export type EndpointPassive = {
+    name: string;
+    description: string;
+};
+
 export type EndpointCharacterSpell = {
     id: string;
     name: string;
@@ -28,6 +33,7 @@ export type EndpointCharacter = {
     primary: string;
     secondary: string;
     attacks: EndpointCharacterAttack[];
+    passives: EndpointPassive[];
     uniqueSpells: EndpointCharacterSpell[];
 };
 
@@ -87,4 +93,14 @@ export function elementBreakdown(spells: EndpointSpell[]): Array<{ label: string
     return Array.from(counts.entries())
         .map(([label, count]) => ({ label, count }))
         .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+export function humanizeId(value: string): string {
+    return value
+        .replace(/[_-]+/g, ' ')
+        .replace(/\b\w/g, match => match.toUpperCase());
+}
+
+export function humanizeElement(value: string): string {
+    return humanizeId(value);
 }

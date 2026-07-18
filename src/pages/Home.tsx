@@ -128,7 +128,7 @@ export default function Home() {
                 }
 
                 <div class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto">
-                    <a href="/docs" class="min-h-11 px-4 py-3 bg-blue-300 font-bold text-gray-900 inline-flex items-center justify-center rounded text-base">
+                    <a href="https://www.npmjs.com/package/@briine/sdk" target="_blank" class="min-h-11 px-4 py-3 bg-blue-300 font-bold text-gray-900 inline-flex items-center justify-center rounded text-base">
                         Get Started <IconArrowRight class="inline-block ml-1" />
                     </a>
                     <a href="/rules" class="min-h-11 px-4 py-3 bg-gray-300 font-bold text-gray-900 inline-flex items-center justify-center rounded text-base">

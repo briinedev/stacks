@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Keep crawler budget focused on canonical pages
+Disallow: /account
+Disallow: /game/
+Disallow: /replay/
+
+Sitemap: https://briine.com/sitemap.xml

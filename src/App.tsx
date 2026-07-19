@@ -9,6 +9,7 @@ import {
 import SiteLayout from './components/SiteLayout';
 
 const Home = lazy(() => import('./pages/Home'));
+const Docs = lazy(() => import('./pages/Docs'));
 const Rules = lazy(() => import('./pages/Rules'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const Account = lazy(() => import('./pages/Account'));
@@ -28,6 +29,7 @@ export default function App() {
                 <ErrorBoundary>
                     <Router>
                         <Route path="/" component={Home} />
+                        <Route path="/docs" component={Docs} />
                         <Route path="/account" component={Account} />
                         <Route path="/data" component={DataCatalog} />
                         <Route path="/chronicles" component={Chronicles} />

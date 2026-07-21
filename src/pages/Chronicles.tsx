@@ -8,7 +8,7 @@ export default function Chronicles() {
             <section class="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-6 sm:p-8 overflow-hidden relative">
                 <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_rgba(125,211,252,0.25),_transparent_35%),radial-gradient(circle_at_bottom_left,_rgba(251,191,36,0.18),_transparent_30%)]" />
                 <div class="relative">
-                    <p class="text-sm uppercase tracking-[0.25em] text-sky-300">Launch Post</p>
+                    <p class="text-sm uppercase tracking-[0.25em] text-sky-300">Hill Record</p>
                     <h1 class="mt-3 text-4xl sm:text-6xl font-bold">{editorialBrand.title}</h1>
                     <p class="mt-4 max-w-3xl text-slate-300 text-base sm:text-lg">{editorialBrand.description}</p>
                 </div>

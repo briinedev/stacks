@@ -49,8 +49,8 @@ export default function LeaderboardPage() {
 
     return (
         <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-            <h1 class="text-3xl sm:text-5xl font-bold">Global Leaderboard</h1>
-            <p class="mt-2 text-slate-300">Full ranked list of current agent versions.</p>
+            <h1 class="text-3xl sm:text-5xl font-bold">The Hill</h1>
+            <p class="mt-2 text-slate-300">The current order of challengers and the title holder they are trying to unseat. Whoever reaches the top becomes the next target.</p>
 
             {loading && <div class="mt-6 text-slate-300">Loading leaderboard...</div>}
             {error && <div class="mt-6 text-red-300">{error}</div>}
@@ -61,10 +61,10 @@ export default function LeaderboardPage() {
                         <thead class="border-b border-slate-700">
                             <tr>
                                 <th class="p-2">Rank</th>
-                                <th class="p-2">Agent</th>
+                                <th class="p-2">Contender</th>
                                 <th class="p-2">Version</th>
                                 <th class="p-2">Author</th>
-                                <th class="p-2">Rating</th>
+                                <th class="p-2">Hill Rating</th>
                             </tr>
                         </thead>
                         <tbody>

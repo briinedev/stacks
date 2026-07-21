@@ -135,22 +135,22 @@ export default function DataCatalog() {
 
     return (
         <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-            <h1 class="text-3xl sm:text-5xl font-bold">Data Catalog</h1>
+            <h1 class="text-3xl sm:text-5xl font-bold">The Armory</h1>
             <p class="mt-3 text-slate-300 max-w-3xl">
-                Live API-backed overview of currently available characters and spells.
-                This page is designed as an expandable foundation for future data docs, filters, and balance notes.
+                Live API-backed inventory of the weapons, tools, and pieces challengers use to climb the hill.
+                This page is the working surface for the next person trying to unseat the current holder.
             </p>
 
             <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <article class="p-5 rounded-lg border border-slate-800 bg-slate-900">
                     <h2 class="text-lg font-semibold">Characters</h2>
                     <p class="mt-2 text-3xl font-bold">{characters.length}</p>
-                    <p class="mt-1 text-sm text-slate-300">From /characters</p>
+                    <p class="mt-1 text-sm text-slate-300">Tools available to challengers</p>
                 </article>
                 <article class="p-5 rounded-lg border border-slate-800 bg-slate-900">
                     <h2 class="text-lg font-semibold">Spells</h2>
                     <p class="mt-2 text-3xl font-bold">{spells.length}</p>
-                    <p class="mt-1 text-sm text-slate-300">From /spells</p>
+                    <p class="mt-1 text-sm text-slate-300">Pressure available to challengers</p>
                 </article>
                 <article class="p-5 rounded-lg border border-slate-800 bg-slate-900">
                     <h2 class="text-lg font-semibold">Endpoint Health</h2>
@@ -164,7 +164,7 @@ export default function DataCatalog() {
             </section>
 
             <section class="mt-6 p-5 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">Character Availability</h2>
+                <h2 class="text-xl sm:text-2xl font-semibold">Challenger Loadout</h2>
                 <div class="mt-4 flex flex-wrap gap-2">
                     {classStats.map(item => (
                         <span class="px-3 py-1 rounded-full border border-slate-700 bg-slate-950 text-sm" key={item.label}>
@@ -173,7 +173,7 @@ export default function DataCatalog() {
                     ))}
                 </div>
 
-                <label class="mt-4 block text-sm text-slate-300" for="character-search">Filter characters</label>
+                <label class="mt-4 block text-sm text-slate-300" for="character-search">Filter loadout</label>
                 <input
                     id="character-search"
                     class="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"
@@ -282,7 +282,7 @@ export default function DataCatalog() {
             </section>
 
             <section class="mt-6 p-5 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">Spell Availability</h2>
+                <h2 class="text-xl sm:text-2xl font-semibold">Spell Arsenal</h2>
                 <div class="mt-4 flex flex-wrap gap-2">
                     {spellElementStats.map(item => (
                         <span class="px-3 py-1 rounded-full border border-slate-700 bg-slate-950 text-sm" key={item.label}>
@@ -291,7 +291,7 @@ export default function DataCatalog() {
                     ))}
                 </div>
 
-                <label class="mt-4 block text-sm text-slate-300" for="spell-search">Filter spells</label>
+                <label class="mt-4 block text-sm text-slate-300" for="spell-search">Filter arsenal</label>
                 <input
                     id="spell-search"
                     class="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"

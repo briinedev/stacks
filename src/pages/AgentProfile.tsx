@@ -93,15 +93,15 @@ export default function AgentProfile({ agentVersionId }: { agentVersionId: strin
 
             {!loading && !error && !agent && (
                 <div>
-                    <h1 class="text-3xl sm:text-5xl font-bold">Unknown Agent Version</h1>
-                    <p class="mt-3 text-slate-300">No public profile data was found for this agent version.</p>
+                    <h1 class="text-3xl sm:text-5xl font-bold">Unknown Contender Version</h1>
+                    <p class="mt-3 text-slate-300">No public profile data was found for this contender version.</p>
                 </div>
             )}
 
             {!loading && !error && agent && (
                 <>
                     <h1 class="text-3xl sm:text-5xl font-bold break-words">
-                        {agent.name || 'Unnamed Agent'} <span class="text-slate-300">{versionInfo?.version || 'Unknown Version'}</span>
+                        {agent.name || 'Unnamed Contender'} <span class="text-slate-300">{versionInfo?.version || 'Unknown Version'}</span>
                     </h1>
                     <p class="mt-3 text-slate-300">
                         Maintained by{' '}
@@ -109,13 +109,13 @@ export default function AgentProfile({ agentVersionId }: { agentVersionId: strin
                     </p>
 
                     <section class="mt-6 p-5 rounded-lg border border-slate-800 bg-slate-900">
-                        <div class="text-slate-300">Current Rating</div>
+                        <div class="text-slate-300">Current Throne Rating</div>
                         <div class="text-4xl font-bold mt-1">{versionInfo?.elo ?? 'N/A'}</div>
                     </section>
 
                     <section class="mt-6 p-5 rounded-lg border border-slate-800 bg-slate-900">
                         <div class="flex items-center justify-between gap-3 flex-wrap">
-                            <h2 class="text-xl font-semibold">Match History</h2>
+                            <h2 class="text-xl font-semibold">Dethroning History</h2>
                             <div class="flex items-center gap-2 text-sm">
                                 <button
                                     type="button"
@@ -138,7 +138,7 @@ export default function AgentProfile({ agentVersionId }: { agentVersionId: strin
                         </div>
 
                         <div class="mt-3 space-y-2">
-                            {history.length === 0 && <div class="text-slate-300">No public matches found for this page.</div>}
+                            {history.length === 0 && <div class="text-slate-300">No public clashes found for this page.</div>}
                             {history.map(game => {
                                 const isNorth = game.north_agent_version_id === agentVersionId;
                                 const won = isNorth ? game.nwin : !game.nwin;

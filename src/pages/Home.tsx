@@ -36,6 +36,7 @@ export default function Home() {
 
     const [featured, setFeatured] = useState(undefined as string | undefined);
     const launchPost = chroniclePosts[0];
+    const throneHolder = leaderboard[0];
 
     useEffect(() => {
         let canceled = false;
@@ -97,7 +98,7 @@ export default function Home() {
 
     return (
         <main class="px-4 sm:px-6 lg:px-8 pb-16 max-w-6xl mx-auto">
-            <section class="text-center mt-10 mb-10 sm:mt-12 sm:mb-12">
+            <section class="text-center mt-8 mb-10 sm:mt-10 sm:mb-12">
                 <div class="mx-auto max-w-3xl">
                     <img src="/favicon.svg" class="w-14 sm:w-16 h-auto inline-block" />
                     <span class="text-2xl sm:text-3xl block font-bold mt-2 break-words">Briine</span>
@@ -113,10 +114,10 @@ export default function Home() {
             </section>
 
             <section class="text-center border p-5 sm:p-8 my-8 bg-gray-900 rounded-lg">
-                <h2 class="text-2xl sm:text-4xl block mb-3 sm:mb-4 break-words">Write Your Agent</h2>
-                <h3 class="text-3xl sm:text-5xl block break-words">Compete Through Code</h3>
+                <div class="text-sm uppercase tracking-[0.35em] text-amber-300">Reigning Champion</div>
+                <h2 class="mt-3 text-3xl sm:text-5xl block font-bold break-words">Join the hunt and take the throne.</h2>
                 <p class="my-4 text-base sm:text-xl lg:text-2xl max-w-3xl mx-auto break-words">
-                    See how your code stacks up against other developers worldwide in a strategic battle of drafts, shared resource management, and ever-evolving tactics.
+                    Briine is a public challenge for developers who want to put brucewrks in his place. The current champion is the target. Beat him with your own agent and the throne becomes yours.
                 </p>
 
                 {
@@ -129,28 +130,79 @@ export default function Home() {
 
                 <div class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto">
                     <a href="/docs" class="min-h-11 px-4 py-3 bg-blue-300 font-bold text-gray-900 inline-flex items-center justify-center rounded text-base">
-                        Get Started <IconArrowRight class="inline-block ml-1" />
+                        Build to Beat Him <IconArrowRight class="inline-block ml-1" />
                     </a>
                     <a href="/rules" class="min-h-11 px-4 py-3 bg-gray-300 font-bold text-gray-900 inline-flex items-center justify-center rounded text-base">
-                        Learn the Rules <IconArrowRight class="inline-block ml-1" />
+                        Learn How to Dethrone <IconArrowRight class="inline-block ml-1" />
                     </a>
                 </div>
             </section>
 
             <section class="mt-10 sm:mt-12">
-                <h3 class="text-2xl sm:text-4xl text-center p-2 sm:p-4 break-words">Featured Match</h3>
+                <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+                    <h3 class="text-2xl sm:text-4xl block break-words">The Throne</h3>
+                    <span class="text-sm uppercase tracking-[0.25em] text-amber-300">Current Target</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4">
+                    <article class="rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-gray-900 to-gray-900 p-5 sm:p-6 shadow-lg shadow-amber-950/20">
+                        <div class="text-sm uppercase tracking-[0.25em] text-amber-300">Reigning Holder</div>
+                        <h4 class="mt-2 text-2xl sm:text-3xl font-bold break-words">
+                            {throneHolder ? throneHolder.name : 'Throne Vacant'}
+                        </h4>
+                        <p class="mt-2 text-slate-300 break-words">
+                            {throneHolder
+                                ? `Owned by ${throneHolder.owner}. This is the agent every visitor is here to beat. Win and you become the new one to beat.`
+                                : 'No champion is seated yet. Be the first to claim the title.'}
+                        </p>
+
+                        {throneHolder && (
+                            <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="rounded-lg border border-slate-700 bg-slate-950/70 px-4 py-3">
+                                    <div class="text-xs uppercase tracking-wide text-slate-400">Version</div>
+                                    <div class="mt-1 font-semibold">{throneHolder.version}</div>
+                                </div>
+                                <div class="rounded-lg border border-slate-700 bg-slate-950/70 px-4 py-3">
+                                    <div class="text-xs uppercase tracking-wide text-slate-400">Owner</div>
+                                    <div class="mt-1 font-semibold break-words">{throneHolder.owner}</div>
+                                </div>
+                                <div class="rounded-lg border border-slate-700 bg-slate-950/70 px-4 py-3">
+                                    <div class="text-xs uppercase tracking-wide text-slate-400">Hill Rating</div>
+                                    <div class="mt-1 font-semibold">{throneHolder.elo}</div>
+                                </div>
+                            </div>
+                        )}
+                    </article>
+
+                    <article class="rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+                        <div class="text-sm uppercase tracking-[0.25em] text-slate-400">How the title moves</div>
+                        <ol class="mt-3 space-y-3 text-slate-200 list-decimal pl-5">
+                            <li>One agent sits on the throne.</li>
+                            <li>Every visitor enters to challenge that holder.</li>
+                            <li>If they win, they become the new target.</li>
+                            <li>The hill never stops moving.</li>
+                        </ol>
+                        <a href="/leaderboard" class="mt-5 inline-flex min-h-11 px-4 py-3 bg-amber-300 font-bold text-gray-900 items-center justify-center rounded text-base">
+                            Challenge the Current Holder <IconArrowRight class="inline-block ml-1" />
+                        </a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="mt-10 sm:mt-12">
+                <h3 class="text-2xl sm:text-4xl text-center p-2 sm:p-4 break-words">Featured Challenge</h3>
                 <div class="w-full overflow-hidden">
                     { featured && <GameViewer matchId={featured} /> }
                 </div>
             </section>
 
             <section class="mt-12">
-                <h3 class="text-2xl sm:text-4xl mb-4 block text-center break-words">Recent Matches</h3>
+                <h3 class="text-2xl sm:text-4xl mb-4 block text-center break-words">Recent Trials</h3>
                 <Latest />
             </section>
 
             <section class="mt-12">
-                <h3 class="text-2xl sm:text-4xl mb-4 block text-center break-words">Global Leaderboard</h3>
+                <h3 class="text-2xl sm:text-4xl mb-4 block text-center break-words">The Board</h3>
 
                 <div class="md:hidden grid grid-cols-1 gap-3">
                     {loadingLeaderboard && (
@@ -177,7 +229,7 @@ export default function Home() {
                         <thead class="border-b">
                             <tr>
                                 <th class="p-2">Rank</th>
-                                <th class="p-2">Agent</th>
+                                <th class="p-2">Contender</th>
                                 <th class="p-2">Author</th>
                                 <th class="p-2">Rating</th>
                             </tr>
@@ -249,16 +301,16 @@ export default function Home() {
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 text-center">
                     <div class="p-4 bg-gray-900 rounded border border-gray-800">
-                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Create Your Agent</h4>
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Create Your Challenger</h4>
                         <p class="text-base sm:text-lg break-words">Using our <a href="/docs">TypeScript SDK</a>, or your favorite language through our <a href="/docs">WebSocket protocol</a>.</p>
                     </div>
                     <div class="p-4 bg-gray-900 rounded border border-gray-800">
-                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Compete</h4>
-                        <p class="text-base sm:text-lg break-words">Connect your agent to our competitive environment to battle other agents, and find your relative rating.</p>
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Challenge</h4>
+                        <p class="text-base sm:text-lg break-words">Connect your agent to the arena and test it against the current benchmark.</p>
                     </div>
                     <div class="p-4 bg-gray-900 rounded border border-gray-800">
-                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Improve</h4>
-                        <p class="text-base sm:text-lg break-words">Analyze completed matches, refine your strategies, and improve your rating in an ever-evolving battlefield.</p>
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Ascend</h4>
+                        <p class="text-base sm:text-lg break-words">Analyze completed trials, refine your strategy, and climb until you can claim the title.</p>
                     </div>
                 </div>
             </section>
@@ -268,12 +320,12 @@ export default function Home() {
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-center">
                     <div class="p-4 bg-gray-900 rounded border border-gray-800">
-                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Deterministic Matches</h4>
+                        <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Deterministic Trials</h4>
                         <p class="text-base sm:text-lg break-words">All matches are entirely devoid of randomness, other than which team begins the match.</p>
                     </div>
                     <div class="p-4 bg-gray-900 rounded border border-gray-800">
                         <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Team Roster Draft Pick</h4>
-                        <p class="text-base sm:text-lg break-words">Counterpick your opponents in a draft pick of 3 controllable characters in your match.</p>
+                        <p class="text-base sm:text-lg break-words">Counterpick the reigning benchmark in a draft of 3 controllable characters.</p>
                     </div>
                     <div class="p-4 bg-gray-900 rounded border border-gray-800">
                         <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Strategic Action Selection</h4>
@@ -281,7 +333,7 @@ export default function Home() {
                     </div>
                     <div class="p-4 bg-gray-900 rounded border border-gray-800">
                         <h4 class="text-xl sm:text-2xl p-2 sm:p-4 break-words">Shared Action Economy</h4>
-                        <p class="text-base sm:text-lg break-words">Actions interact with The Stack, a shared resource between sides. Choose wisely!</p>
+                        <p class="text-base sm:text-lg break-words">Actions interact with The Stack, a shared resource between sides. Choose wisely.</p>
                     </div>
                 </div>
             </section>

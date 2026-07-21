@@ -3,6 +3,7 @@ import { ComponentChildren } from 'preact';
 import { useContext } from 'preact/hooks';
 
 import UserProvider, { UserContext } from './contexts/UserContext';
+import ChampionBanner from './ChampionBanner';
 import { editorialBrand } from '../content/chronicles';
 
 type SiteLayoutProps = {
@@ -38,7 +39,7 @@ export default function SiteLayout({ children }: SiteLayoutProps) {
                         </a>
                         <nav class="flex flex-wrap gap-2 sm:gap-3 text-sm sm:text-base">
                             <a href="/docs" class="px-3 py-2 rounded hover:bg-slate-800">Docs</a>
-                            <a href="/leaderboard" class="px-3 py-2 rounded hover:bg-slate-800">Leaderboard</a>
+                            <a href="/leaderboard" class="px-3 py-2 rounded hover:bg-slate-800">The Hill</a>
                             <a href="/data" class="px-3 py-2 rounded hover:bg-slate-800">Data</a>
                             <a href="/rules" class="px-3 py-2 rounded hover:bg-slate-800">Rules</a>
                             <a href="/chronicles" class="px-3 py-2 rounded hover:bg-slate-800">{editorialBrand.shortLabel}</a>
@@ -47,12 +48,14 @@ export default function SiteLayout({ children }: SiteLayoutProps) {
                     </div>
                 </header>
 
+                <ChampionBanner />
+
                 {children}
 
                 <footer class="border-t border-slate-800 mt-16">
                     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-sm text-slate-300">
                         <div class="flex flex-wrap items-center justify-between gap-4">
-                            <div>Built for deterministic agent competition.</div>
+                            <div>Built as a public challenge arena for code.</div>
                             <div class="flex items-center gap-4">
                                 <a href="https://github.com/briinedev" target="_blank" class="inline-flex items-center gap-1 hover:text-blue-400"><IconBrandGithub /> GitHub</a>
                                 <a href="https://discord.gg/24EcfGggDu" target="_blank" class="inline-flex items-center gap-1 hover:text-blue-400"><IconBrandDiscord /> Discord</a>

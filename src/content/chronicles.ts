@@ -26,14 +26,14 @@ export const editorialBrand = {
     title: 'Chronicles',
     shortLabel: 'Chronicles',
     alternateTitles: ['Briine Chronicles'],
-    description: 'The public log of all significant events and updates related to Briine.',
+    description: 'The public record of challengers, title holders, and the fights that decide who becomes the next benchmark.',
 };
 
 export const chronicleCategories: Array<{ id: ChronicleCategoryId; label: string; description: string }> = [
     {
         id: 'dev-logs',
         label: 'Development Logs',
-        description: 'Posts detailing the development progress and updates of the Briine platform.',
+        description: 'Posts detailing the development progress and updates of the Briine challenge platform.',
     },
 ];
 

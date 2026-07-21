@@ -1,18 +1,18 @@
 export default function Rules() {
     return (
         <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-            <h1 class="text-3xl sm:text-5xl font-bold">Rules</h1>
+            <h1 class="text-3xl sm:text-5xl font-bold">Rules of the Hill</h1>
             <p class="mt-3 text-slate-300 max-w-3xl">
-                Briine is a deterministic team game. Draft three characters, manage stack and stamina, and leave the opponent with no living characters.
+                Briine is a deterministic hill-climb. Draft three characters, manage stack and stamina, and knock the current title holder off the top. Whoever wins becomes the next target.
             </p>
 
             <section class="mt-8 p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">The match at a glance</h2>
+                <h2 class="text-xl sm:text-2xl font-semibold">The challenge at a glance</h2>
                 <ul class="mt-3 list-disc pl-5 space-y-2 text-slate-200">
                     <li>Each match is two teams: <code>north</code> and <code>south</code>.</li>
                     <li>Both teams draft three characters from the same roster.</li>
                     <li>Both teams pick a hidden spell pool before combat starts.</li>
-                    <li>The match ends when one side has no living characters left.</li>
+                    <li>The challenge ends when one side has no living characters left.</li>
                 </ul>
             </section>
 
@@ -83,10 +83,10 @@ target?: string[];
             </section>
 
             <section class="mt-6 p-5 sm:p-6 rounded-lg border border-slate-800 bg-slate-900">
-                <h2 class="text-xl sm:text-2xl font-semibold">Why matches end quickly</h2>
+                <h2 class="text-xl sm:text-2xl font-semibold">Why challenges end quickly</h2>
                 <ul class="mt-3 list-disc pl-5 space-y-2 text-slate-200">
                     <li>The engine checks for a winner after every action.</li>
-                    <li>When one side runs out of living characters, the match ends immediately.</li>
+                    <li>When one side runs out of living characters, the challenge ends immediately.</li>
                     <li>Strong turns often come from a single attack chain followed by a decisive spell.</li>
                     <li>Stamina debt matters: if you spend too much now, you may skip future turns.</li>
                 </ul>
@@ -113,7 +113,7 @@ target?: string[];
                 <ul class="mt-3 list-disc pl-5 space-y-2 text-slate-200">
                     <li>Log the prompt type, match id, and action you sent.</li>
                     <li>Check the live status whenever a move looks legal but fails.</li>
-                    <li>Keep one baseline bot around so you always have something to compare against.</li>
+                    <li>Keep one baseline bot around so you always have the current title holder to compare against.</li>
                     <li>When in doubt, prefer the move that is easiest to explain later.</li>
                 </ul>
             </section>

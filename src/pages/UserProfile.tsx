@@ -46,7 +46,7 @@ export default function UserProfile({ username }: { username: string }) {
     return (
         <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
             <h1 class="text-3xl sm:text-5xl font-bold break-words">{username}</h1>
-            <p class="mt-2 text-slate-300">Public agent versions visible in the leaderboard.</p>
+            <p class="mt-2 text-slate-300">Public contenders visible in the throne ranking.</p>
 
             {loading && <div class="mt-6 text-slate-300">Loading profile...</div>}
 
@@ -59,9 +59,9 @@ export default function UserProfile({ username }: { username: string }) {
                     <table class="w-full min-w-[640px] table-auto text-left border-collapse border border-slate-700 bg-slate-900">
                         <thead class="border-b border-slate-700">
                             <tr>
-                                <th class="p-2">Agent</th>
+                                <th class="p-2">Contender</th>
                                 <th class="p-2">Version</th>
-                                <th class="p-2">Rating</th>
+                                <th class="p-2">Throne Rating</th>
                             </tr>
                         </thead>
                         <tbody>

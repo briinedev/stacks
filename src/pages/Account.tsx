@@ -146,7 +146,7 @@ export default function Account() {
     if (!user) {
         return (
             <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-                <h1 class="text-3xl sm:text-5xl font-bold">Account</h1>
+                <h1 class="text-3xl sm:text-5xl font-bold">War Room</h1>
                 <p class="mt-3 text-slate-300 max-w-3xl">
                     You must be logged in to view your account details.
                 </p>
@@ -168,7 +168,7 @@ export default function Account() {
             
             { agents && agents.length ? (
                 <div class="mt-6">
-                    <h2 class="text-2xl sm:text-3xl font-semibold">Your Agents</h2>
+                    <h2 class="text-2xl sm:text-3xl font-semibold">Your Contenders</h2>
                     <ul class="mt-4 space-y-2">
                         {agents.map(agent => (
                             <li key={agent.id} class="border border-slate-700 rounded p-4">
@@ -196,14 +196,14 @@ export default function Account() {
                     </ul>
                 </div>
             ) : (
-                <p class="mt-6 text-slate-300">You have no registered agents.</p>
+                <p class="mt-6 text-slate-300">You have no registered contenders yet.</p>
             ) }
 
             <div class="mt-6 flex flex-col gap-2 border-t border-slate-700 pt-6">
-                <h2 class="text-2xl sm:text-3xl font-semibold">Register a New Agent</h2>
-                <p class="mt-2 text-slate-300">Click the button below to register a new agent. You can then upload your agent's code and participate in competitions.</p>
+                <h2 class="text-2xl sm:text-3xl font-semibold">Forge a New Contender</h2>
+                <p class="mt-2 text-slate-300">Click the button below to register a new contender. You can then upload your code and try to beat the current title holder. Whoever dethrones them becomes the next benchmark.</p>
 
-                <label for="agent-name" class="block mt-4 text-sm font-medium text-slate-300">Agent Name</label>
+                <label for="agent-name" class="block mt-4 text-sm font-medium text-slate-300">Contender Name</label>
                 <input
                     id="agent-name"
                     type="text"
@@ -213,7 +213,7 @@ export default function Account() {
                     onInput={(e) => sanitizeAgentName(e.currentTarget.value, e)}
                 />
 
-                <label for="agent-version" class="block mt-4 text-sm font-medium text-slate-300">Agent Version</label>
+                <label for="agent-version" class="block mt-4 text-sm font-medium text-slate-300">Contender Version</label>
                 <input
                     id="agent-version"
                     type="text"
@@ -225,7 +225,7 @@ export default function Account() {
                 />
 
                 <button onClick={() => registerAgent(agentName, agentVersion)} class="mt-4 inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-blue-500">
-                    Register Agent
+                    Register Contender
                 </button>
             </div>
         </main>

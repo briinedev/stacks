@@ -12,16 +12,15 @@ export default function Docs() {
         <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
             <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8">
                 <div class="max-w-3xl">
-                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Get Started</p>
-                    <h1 class="mt-3 text-4xl sm:text-5xl font-bold leading-tight">Go from zero to a live Briine bot fast.</h1>
+                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Beat the Champion</p>
+                    <h1 class="mt-3 text-4xl sm:text-5xl font-bold leading-tight">Build an agent that can take the throne.</h1>
                     <p class="mt-4 text-lg text-slate-300">
-                        Briine is a coding competition where your agent connects to the arena, joins matchmaking, drafts a team,
-                        picks a spell pool, and chooses actions until the match ends.
+                        Briine is where developers come to build the agent that can beat the reigning champion. Win once and the title moves; win again and the next challenger comes for you.
                     </p>
 
                     <div class="mt-6 flex flex-wrap gap-3">
                         <a href="#create" class="inline-flex items-center gap-2 rounded bg-blue-300 px-4 py-3 font-semibold text-slate-950 hover:bg-blue-200">
-                            Start with the initializer <IconArrowRight size={18} />
+                            Start building to dethrone <IconArrowRight size={18} />
                         </a>
                         <a href="https://www.npmjs.com/package/@briine/sdk" target="_blank" class="inline-flex items-center gap-2 rounded border border-slate-700 px-4 py-3 font-semibold text-slate-100 hover:bg-slate-800">
                             SDK reference <IconExternalLink size={18} />
@@ -55,10 +54,10 @@ export default function Docs() {
 
             <section id="create" class="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8">
                 <div class="max-w-3xl">
-                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Create Your Bot</p>
+                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Create Your Challenger</p>
                     <h2 class="mt-3 text-3xl sm:text-4xl font-bold">Start from the official initializer.</h2>
                     <p class="mt-4 text-slate-300">
-                        The fastest path is to scaffold a bot project, fill in your Briine credentials, and start iterating on strategy.
+                        The fastest path is to scaffold a challenger project, fill in your Briine credentials, and start iterating on strategy that can unseat the top agent.
                     </p>
                 </div>
 
@@ -84,10 +83,10 @@ export default function Docs() {
 
             <section class="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8">
                 <div class="max-w-3xl">
-                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Register Your Agent</p>
-                    <h2 class="mt-3 text-3xl sm:text-4xl font-bold">Create the values your bot needs.</h2>
+                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Register Your Contender</p>
+                    <h2 class="mt-3 text-3xl sm:text-4xl font-bold">Create the values your contender needs.</h2>
                     <p class="mt-4 text-slate-300">
-                        After scaffolding, log in and create your first agent. Briine will give you the name, version, and secret that the starter project expects.
+                        After scaffolding, log in and create your first contender. Briine will give you the name, version, and secret that the starter project expects.
                     </p>
                 </div>
 
@@ -95,9 +94,9 @@ export default function Docs() {
                     <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
                         <ol class="list-decimal pl-5 space-y-3 text-slate-200">
                             <li>Log in to Briine with GitHub.</li>
-                            <li>Create your first agent from your account page.</li>
+                            <li>Create your first contender from your account page.</li>
                             <li>Copy the generated values into the `.env` file created by the initializer.</li>
-                            <li>Run your bot locally and let it join the queue.</li>
+                            <li>Run your bot locally and let it challenge the current title holder.</li>
                         </ol>
                     </div>
 
@@ -120,7 +119,7 @@ export default function Docs() {
                 <h2 class="text-2xl sm:text-3xl font-bold">Keep the reference material separate.</h2>
                 <p class="mt-4 max-w-3xl text-slate-300">
                     This page is the fast path. When you need exact TypeScript shapes or SDK details, use the SDK package docs and your editor.
-                    The goal here is to get you from first visit to first running bot with as little friction as possible.
+                    The goal here is to get you from first visit to first challenger with as little friction as possible.
                 </p>
                 <div class="mt-5 flex flex-wrap gap-3">
                     <a href="https://www.npmjs.com/package/@briine/sdk" target="_blank" class="inline-flex items-center gap-2 rounded border border-slate-700 px-4 py-3 font-semibold text-slate-100 hover:bg-slate-800">

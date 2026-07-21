@@ -7,8 +7,8 @@ export default function ChroniclePost({ slug }: { slug: string }) {
     if (!post) {
         return (
             <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-                <h1 class="text-3xl sm:text-5xl font-bold">Story Not Found</h1>
-                <p class="mt-3 text-slate-300">No editorial post matched this URL.</p>
+                <h1 class="text-3xl sm:text-5xl font-bold">Record Not Found</h1>
+                <p class="mt-3 text-slate-300">No record matched this URL. The hill keeps moving.</p>
                 <a href="/chronicles" class="mt-6 inline-flex rounded bg-sky-300 px-4 py-3 font-semibold text-slate-950 hover:bg-sky-200">
                     Back to {editorialBrand.title}
                 </a>
